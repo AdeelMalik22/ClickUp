@@ -27,6 +27,7 @@ urlpatterns = [
          jwt_views.TokenRefreshView.as_view(),
          name='token_refresh'),
     path('',include('core.urls')),
-    path("",include('workspace.urls'))
+    path("",include('workspace.urls')),
+    path("",include('project.urls'))
 ]
 
