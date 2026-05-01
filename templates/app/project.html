@@ -1,0 +1,451 @@
+{% extends 'app_layout.html' %}
+
+{% block title %}Project - ClickUp Clone{% endblock %}
+
+{% block header_left %}
+<div class="flex flex-col">
+    <div class="flex items-center gap-2 text-xs text-textMuted font-medium mb-0.5">
+        <span id="breadcrumb-ws">Workspace</span>
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        <span class="text-primary">Projects</span>
+    </div>
+    <div class="flex items-center gap-2">
+        <div class="w-4 h-4 rounded-full border-[3px] border-primary"></div>
+        <h1 id="project-title" class="text-xl font-bold text-textMain tracking-tight">Loading Project...</h1>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-col h-full overflow-hidden relative">
+    
+    <!-- View Tabs -->
+    <div class="border-b border-borderSubtle bg-white px-6 flex items-center gap-6 shrink-0 z-10 sticky top-0">
+        <button id="tab-list" class="py-3 px-1 border-b-2 border-primary text-primary font-semibold text-sm transition-colors flex items-center gap-2" onclick="switchView('list')">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+            List
+        </button>
+        <button id="tab-board" class="py-3 px-1 border-b-2 border-transparent text-textMuted hover:text-textMain font-medium text-sm transition-colors flex items-center gap-2" onclick="switchView('board')">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path></svg>
+            Board
+        </button>
+        
+        <div class="ml-auto flex items-center gap-2 py-2">
+            <button class="bg-primary/10 text-primary hover:bg-primary/20 font-medium px-3 py-1.5 rounded text-sm transition-colors" onclick="openCreateTaskModal()">
+                + New Task
+            </button>
+        </div>
+    </div>
+
+    <!-- Scrollable Content Area -->
+    <div class="flex-1 overflow-auto bg-surface p-6">
+        
+        <!-- List View -->
+        <div id="view-list" class="w-full max-w-6xl mx-auto space-y-8 pb-10">
+            <!-- Dynamic Groups (by status) will go here -->
+        </div>
+
+        <!-- Board View -->
+        <div id="view-board" class="hidden h-full flex items-start gap-6 overflow-x-auto pb-4">
+            <!-- Dynamic Kanban Columns will go here -->
+        </div>
+
+    </div>
+</div>
+
+<!-- Task Detail Slide-over HTML Template (Injected dynamically) -->
+<template id="task-detail-template">
+    <div class="flex flex-col h-full">
+        <div class="flex items-center justify-between p-4 border-b border-borderSubtle bg-white shrink-0">
+            <div class="flex items-center gap-2 text-xs font-medium uppercase tracking-wide px-2 py-1 rounded" id="modal-status-badge">
+                STATUS
+            </div>
+            <div class="flex items-center gap-2">
+                <button class="text-textMuted hover:text-textMain p-1" onclick="closeTaskPanel()">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto p-6 bg-white flex flex-col gap-8">
+            <!-- Header -->
+            <div>
+                <h2 class="text-2xl font-bold text-textMain mb-4" id="modal-title">Task Title</h2>
+                <div class="grid grid-cols-2 gap-4 border border-borderSubtle rounded-lg p-4 bg-surfaceHover">
+                    <div>
+                        <p class="text-xs text-textMuted font-medium mb-1 uppercase tracking-wide">Assignee</p>
+                        <div class="flex items-center gap-2 text-sm font-medium text-textMain">
+                            <div class="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs">A</div>
+                            <span id="modal-assignee">Unassigned</span>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-xs text-textMuted font-medium mb-1 uppercase tracking-wide">Priority</p>
+                        <div class="flex items-center gap-2 text-sm font-medium text-textMain" id="modal-priority">
+                            Normal
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Description -->
+            <div>
+                <h3 class="text-sm font-bold text-textMain mb-2 uppercase tracking-wide">Description</h3>
+                <div class="text-sm text-textMain whitespace-pre-wrap p-4 border border-borderSubtle rounded-lg" id="modal-desc">
+                    No description provided.
+                </div>
+            </div>
+            
+            <!-- Comments -->
+            <div class="flex-1 flex flex-col">
+                <h3 class="text-sm font-bold text-textMain mb-4 uppercase tracking-wide">Activity & Comments</h3>
+                <div class="flex-1 overflow-y-auto space-y-4 mb-4" id="modal-comments">
+                    <p class="text-sm text-textMuted italic">Loading comments...</p>
+                </div>
+                
+                <div class="mt-auto border border-borderSubtle rounded-lg focus-within:ring-1 focus-within:ring-primary focus-within:border-primary transition-all p-2 bg-surfaceHover">
+                    <textarea id="comment-input" rows="2" class="w-full bg-transparent outline-none text-sm p-2 resize-none" placeholder="Write a comment..."></textarea>
+                    <div class="flex justify-end mt-2">
+                        <button class="bg-primary hover:bg-primaryHover text-white px-3 py-1.5 rounded text-sm font-medium transition-colors" id="btn-post-comment">Comment</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    const projectId = {{ view.kwargs.pk }};
+    let currentProject = null;
+    let tasks = [];
+
+    // Valid Statuses based on claude.md
+    const STATUSES = {
+        'todo': { label: 'To Do', color: 'bg-gray-200 text-gray-700', border: 'border-gray-300' },
+        'in_progress': { label: 'In Progress', color: 'bg-blue-100 text-blue-700', border: 'border-blue-300' },
+        'review': { label: 'Review', color: 'bg-yellow-100 text-yellow-700', border: 'border-yellow-300' },
+        'completed': { label: 'Completed', color: 'bg-green-100 text-green-700', border: 'border-green-300' },
+        'on_hold': { label: 'On Hold', color: 'bg-orange-100 text-orange-700', border: 'border-orange-300' },
+        'cancelled': { label: 'Cancelled', color: 'bg-red-100 text-red-700', border: 'border-red-300' }
+    };
+
+    const PRIORITIES = {
+        'urgent': { label: 'Urgent', badge: 'bg-red-100 text-red-700' },
+        'high': { label: 'High', badge: 'bg-yellow-100 text-yellow-700' },
+        'medium': { label: 'Medium', badge: 'bg-blue-100 text-blue-700' },
+        'low': { label: 'Low', badge: 'bg-gray-100 text-gray-700' }
+    };
+
+    async function fetchProjectData() {
+        try {
+            // Wait for sidebar to load workspace, or fetch project directly
+            const res = await fetchWithAuth(`/projects/${projectId}/`);
+            if (res.ok) {
+                currentProject = await res.json();
+                document.getElementById('project-title').innerText = currentProject.name;
+                // Try to set workspace name if available via sidebar
+                if(window.currentWorkspace) {
+                    document.getElementById('breadcrumb-ws').innerText = window.currentWorkspace.name;
+                }
+                
+                fetchTasks();
+            } else {
+                showToast('Failed to load project details.', 'error');
+            }
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+    async function fetchTasks() {
+        try {
+            const res = await fetchWithAuth(`/tasks/?project=${projectId}`);
+            if (res.ok) {
+                const data = await res.json();
+                tasks = data.results || [];
+                renderListView();
+                renderBoardView();
+            }
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+    function renderListView() {
+        const container = document.getElementById('view-list');
+        container.innerHTML = '';
+        
+        // Group tasks by status
+        Object.keys(STATUSES).forEach(statusKey => {
+            const statusTasks = tasks.filter(t => t.status === statusKey);
+            if (statusTasks.length === 0 && statusKey !== 'todo' && statusKey !== 'in_progress' && statusKey !== 'completed') return;
+            
+            const group = document.createElement('div');
+            group.className = 'bg-white rounded-lg border border-borderSubtle overflow-hidden shadow-sm';
+            
+            const header = document.createElement('div');
+            header.className = `px-4 py-2 border-b border-borderSubtle bg-surfaceHover flex items-center gap-3`;
+            header.innerHTML = `
+                <div class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${STATUSES[statusKey].color}">${STATUSES[statusKey].label}</div>
+                <span class="text-xs text-textMuted font-medium">${statusTasks.length} tasks</span>
+            `;
+            group.appendChild(header);
+            
+            if (statusTasks.length === 0) {
+                group.innerHTML += `<div class="p-4 text-sm text-textMuted italic text-center border-b border-borderSubtle last:border-b-0">No tasks in this status</div>`;
+            } else {
+                statusTasks.forEach(task => {
+                    const priority = PRIORITIES[task.priority] || {label: 'Normal', badge: 'bg-gray-100 text-gray-700'};
+                    
+                    const row = document.createElement('div');
+                    row.className = 'flex items-center p-3 border-b border-borderSubtle last:border-b-0 hover:bg-surfaceHover transition-colors cursor-pointer group';
+                    row.onclick = () => openTaskPanel(task.id);
+                    
+                    row.innerHTML = `
+                        <div class="flex-1 flex items-center gap-3 min-w-0">
+                            <div class="w-4 h-4 rounded border border-gray-300 group-hover:border-primary shrink-0 transition-colors"></div>
+                            <span class="text-sm font-medium text-textMain truncate">${task.title}</span>
+                        </div>
+                        <div class="w-32 shrink-0 flex items-center">
+                            <div class="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold shadow-sm" title="${task.assignee || 'Unassigned'}">${task.assignee ? 'U' : '-'}</div>
+                        </div>
+                        <div class="w-24 shrink-0">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${priority.badge}">${priority.label}</span>
+                        </div>
+                        <div class="w-24 shrink-0 text-xs text-textMuted font-medium">
+                            ${new Date(task.created_at).toLocaleDateString()}
+                        </div>
+                    `;
+                    group.appendChild(row);
+                });
+            }
+            
+            container.appendChild(group);
+        });
+    }
+
+    function renderBoardView() {
+        const container = document.getElementById('view-board');
+        container.innerHTML = '';
+        
+        // Render core columns
+        ['todo', 'in_progress', 'review', 'completed'].forEach(statusKey => {
+            const statusTasks = tasks.filter(t => t.status === statusKey);
+            const statusDef = STATUSES[statusKey];
+            
+            const col = document.createElement('div');
+            col.className = 'w-[300px] shrink-0 flex flex-col h-full';
+            col.innerHTML = `
+                <div class="flex items-center justify-between mb-3 px-1">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${statusDef.color}">${statusDef.label}</span>
+                        <span class="text-xs text-textMuted font-medium">${statusTasks.length}</span>
+                    </div>
+                    <button class="text-textMuted hover:text-textMain"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></button>
+                </div>
+                <div class="flex-1 bg-surfaceHover rounded-lg p-2 overflow-y-auto space-y-2 border border-borderSubtle" id="board-col-${statusKey}" data-status="${statusKey}">
+                    ${statusTasks.map(t => {
+                        const prio = PRIORITIES[t.priority] || {label: 'Normal', badge: 'bg-gray-100 text-gray-700'};
+                        return `
+                            <div class="bg-white p-3 rounded shadow-sm border border-borderSubtle cursor-grab hover:shadow-md transition-shadow" data-id="${t.id}" onclick="openTaskPanel(${t.id})">
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide ${prio.badge}">${prio.label}</span>
+                                </div>
+                                <h4 class="text-sm font-medium text-textMain line-clamp-2 mb-3">${t.title}</h4>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[10px] text-textMuted font-medium">#${t.id}</span>
+                                    <div class="w-5 h-5 rounded-full bg-blue-500 text-white flex items-center justify-center text-[10px] font-bold shadow-sm">U</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+            container.appendChild(col);
+        });
+
+        // Initialize SortableJS
+        if (typeof Sortable !== 'undefined') {
+            ['todo', 'in_progress', 'review', 'completed'].forEach(statusKey => {
+                const el = document.getElementById(`board-col-${statusKey}`);
+                if(el) {
+                    new Sortable(el, {
+                        group: 'kanban',
+                        animation: 150,
+                        ghostClass: 'opacity-50',
+                        onEnd: async function (evt) {
+                            const itemEl = evt.item;  // dragged HTMLElement
+                            const toEl = evt.to;      // target list
+                            const fromEl = evt.from;
+                            
+                            if (toEl !== fromEl) {
+                                const newStatus = toEl.getAttribute('data-status');
+                                const taskId = itemEl.getAttribute('data-id');
+                                
+                                // Call API to update status
+                                try {
+                                    const res = await fetchWithAuth(`/tasks/update_status/${taskId}/`, {
+                                        method: 'PATCH',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ status: newStatus })
+                                    });
+                                    if(res.ok) {
+                                        showToast(`Task status updated to ${STATUSES[newStatus].label}`);
+                                        // Refetch to ensure sync
+                                        fetchTasks();
+                                    } else {
+                                        showToast('Failed to update status', 'error');
+                                        fetchTasks(); // revert DOM
+                                    }
+                                } catch(e) {
+                                    showToast('Network error updating status', 'error');
+                                    fetchTasks(); // revert DOM
+                                }
+                            }
+                        },
+                    });
+                }
+            });
+        }
+    }
+
+    function switchView(view) {
+        document.getElementById('view-list').classList.add('hidden');
+        document.getElementById('view-board').classList.add('hidden');
+        document.getElementById('tab-list').classList.replace('border-primary', 'border-transparent');
+        document.getElementById('tab-list').classList.replace('text-primary', 'text-textMuted');
+        document.getElementById('tab-board').classList.replace('border-primary', 'border-transparent');
+        document.getElementById('tab-board').classList.replace('text-primary', 'text-textMuted');
+        
+        document.getElementById(`view-${view}`).classList.remove('hidden');
+        document.getElementById(`tab-${view}`).classList.replace('border-transparent', 'border-primary');
+        document.getElementById(`tab-${view}`).classList.replace('text-textMuted', 'text-primary');
+    }
+
+    // Modal Events Setup
+    document.addEventListener('taskPanelOpened', async (e) => {
+        const taskId = e.detail.taskId;
+        const panel = document.getElementById('slide-over-panel');
+        const template = document.getElementById('task-detail-template').content.cloneNode(true);
+        panel.innerHTML = '';
+        panel.appendChild(template);
+        
+        // Fetch task details
+        try {
+            const res = await fetchWithAuth(`/tasks/${taskId}/`);
+            if (res.ok) {
+                const task = await res.json();
+                
+                document.getElementById('modal-title').innerText = task.title;
+                document.getElementById('modal-desc').innerText = task.description || 'No description provided.';
+                
+                const statusDef = STATUSES[task.status] || {label: 'Unknown', color: 'bg-gray-100 text-gray-700'};
+                const badge = document.getElementById('modal-status-badge');
+                badge.innerText = statusDef.label;
+                badge.className = `flex items-center gap-2 text-xs font-bold uppercase tracking-wide px-2 py-1 rounded ${statusDef.color}`;
+                
+                const prio = PRIORITIES[task.priority];
+                if(prio) {
+                    document.getElementById('modal-priority').innerHTML = `<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${prio.badge}">${prio.label}</span>`;
+                }
+
+                // Load Comments
+                loadComments(taskId);
+                
+                // Bind Comment Button
+                document.getElementById('btn-post-comment').onclick = () => postComment(taskId);
+            }
+        } catch(e) {
+            console.error(e);
+        }
+    });
+
+    async function loadComments(taskId) {
+        try {
+            const res = await fetchWithAuth(`/tasks/${taskId}/comments/`);
+            if (res.ok) {
+                const data = await res.json();
+                const container = document.getElementById('modal-comments');
+                container.innerHTML = '';
+                
+                if (data.results && data.results.length > 0) {
+                    data.results.forEach(comment => {
+                        container.innerHTML += `
+                            <div class="flex gap-3 bg-surface p-3 rounded-lg border border-borderSubtle">
+                                <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold shrink-0">U</div>
+                                <div>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-sm font-bold text-textMain">${comment.user_name || 'User'}</span>
+                                        <span class="text-xs text-textMuted">${new Date(comment.created_at).toLocaleString()}</span>
+                                    </div>
+                                    <p class="text-sm text-textMain whitespace-pre-wrap">${comment.comment}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    container.innerHTML = `<p class="text-sm text-textMuted italic p-4 text-center">No comments yet. Start the conversation!</p>`;
+                }
+            }
+        } catch(e) {}
+    }
+
+    async function postComment(taskId) {
+        const input = document.getElementById('comment-input');
+        const text = input.value.trim();
+        if(!text) return;
+        
+        try {
+            const res = await fetchWithAuth(`/tasks/${taskId}/comments/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ comment: text })
+            });
+            
+            if (res.ok) {
+                input.value = '';
+                loadComments(taskId);
+                showToast('Comment posted!');
+            } else {
+                showToast('Failed to post comment', 'error');
+            }
+        } catch(e) {
+            showToast('Network error', 'error');
+        }
+    }
+
+    // A dummy task creation
+    async function openCreateTaskModal() {
+        const title = prompt("Enter new task title:");
+        if(!title) return;
+        
+        try {
+            const res = await fetchWithAuth('/tasks/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: title,
+                    project: projectId,
+                    status: 'todo',
+                    priority: 'medium'
+                })
+            });
+            
+            if (res.ok) {
+                showToast('Task created!');
+                fetchTasks();
+            } else {
+                const err = await res.json();
+                console.error(err);
+                showToast('Failed to create task. Check required fields.', 'error');
+            }
+        } catch(e) {
+            showToast('Network error', 'error');
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        fetchProjectData();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Log in - ClickUp Clone{% endblock %}
+
+{% block body %}
+<div class="flex flex-1 h-screen overflow-hidden bg-surface">
+    <!-- Left Side: Form -->
+    <div class="w-full md:w-[480px] lg:w-[520px] flex flex-col justify-center px-8 sm:px-16 lg:px-20 border-r border-borderSubtle bg-white relative z-10 shadow-xl">
+        <div class="mb-10 flex items-center gap-2">
+            <div class="w-8 h-8 bg-primary rounded shadow-sm flex items-center justify-center">
+                <span class="text-white font-bold text-lg">C</span>
+            </div>
+            <span class="text-xl font-bold text-textMain tracking-tight">ClickUp Clone</span>
+        </div>
+
+        <h1 class="text-3xl font-bold text-textMain mb-2">Welcome back</h1>
+        <p class="text-textMuted text-sm mb-8">Please enter your details to log in.</p>
+        
+        <form id="login-form" class="space-y-5">
+            <div>
+                <label for="username" class="block text-sm font-semibold text-textMain mb-1.5">Username or Email</label>
+                <input type="text" id="username" name="username" required 
+                    class="w-full px-4 py-2.5 bg-surfaceHover border border-borderSubtle rounded-lg focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder-textMuted/50 text-sm"
+                    placeholder="Enter your username">
+            </div>
+            
+            <div>
+                <div class="flex justify-between items-center mb-1.5">
+                    <label for="password" class="block text-sm font-semibold text-textMain">Password</label>
+                    <a href="#" class="text-xs text-primary font-medium hover:underline">Forgot password?</a>
+                </div>
+                <input type="password" id="password" name="password" required 
+                    class="w-full px-4 py-2.5 bg-surfaceHover border border-borderSubtle rounded-lg focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder-textMuted/50 text-sm"
+                    placeholder="••••••••">
+            </div>
+
+            <button type="submit" id="submit-btn" 
+                class="w-full bg-primary hover:bg-primaryHover text-white font-medium py-2.5 rounded-lg transition-all duration-200 shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 active:scale-[0.98] mt-2">
+                Log In
+            </button>
+        </form>
+        
+        <div class="mt-8 text-center text-sm text-textMuted">
+            Don't have an account? <a href="/register/" class="text-primary hover:text-primaryHover font-medium hover:underline transition-colors">Sign up</a>
+        </div>
+    </div>
+
+    <!-- Right Side: Graphic/Pattern -->
+    <div class="hidden md:flex flex-1 relative bg-gradient-to-br from-[#ECE9FF] to-[#F5F3FF] items-center justify-center overflow-hidden">
+        <!-- Abstract Shapes -->
+        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+        <div class="absolute top-1/3 right-1/4 w-96 h-96 bg-pink-300/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div class="absolute -bottom-8 left-1/3 w-96 h-96 bg-purple-300/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
+        
+        <div class="relative z-10 max-w-lg text-center px-8">
+            <img src="https://clickup.com/assets/brand/logo-v3-clickup-dark.svg" alt="ClickUp Logo" class="h-12 mx-auto mb-8 opacity-20 filter grayscale">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">One app to replace them all.</h2>
+            <p class="text-gray-600 text-lg">All your work in one place: Tasks, Docs, Chat, Goals, & more.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes blob {
+        0% { transform: translate(0px, 0px) scale(1); }
+        33% { transform: translate(30px, -50px) scale(1.1); }
+        66% { transform: translate(-20px, 20px) scale(0.9); }
+        100% { transform: translate(0px, 0px) scale(1); }
+    }
+    .animate-blob { animation: blob 7s infinite; }
+    .animation-delay-2000 { animation-delay: 2s; }
+    .animation-delay-4000 { animation-delay: 4s; }
+</style>
+
+<script>
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const btn = document.getElementById('submit-btn');
+        
+        btn.disabled = true;
+        btn.innerHTML = `<svg class="animate-spin h-5 w-5 mx-auto text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+        
+        try {
+            const res = await fetch('/api/token/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            
+            const data = await res.json();
+            
+            if (res.ok) {
+                setAuthToken(data.access, data.refresh);
+                showToast('Logged in successfully!');
+                
+                const wsRes = await fetchWithAuth('/workspaces/');
+                const wsData = await wsRes.json();
+                
+                if (wsRes.ok && wsData.results && wsData.results.length === 0) {
+                    window.location.href = '/onboarding/';
+                } else {
+                    window.location.href = '/dashboard/';
+                }
+            } else {
+                showToast(data.detail || 'Invalid credentials.', 'error');
+            }
+        } catch (err) {
+            showToast('A network error occurred.', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerText = 'Log In';
+        }
+    });
+</script>
+{% endblock %}

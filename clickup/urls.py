@@ -17,8 +17,17 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt import views as jwt_views
+from clickup.views_ui import LoginView, RegisterView, OnboardingView, DashboardView, ProjectView
 
 urlpatterns = [
+    # UI Routes
+    path('', LoginView.as_view(), name='login'),
+    path('register/', RegisterView.as_view(), name='register'),
+    path('onboarding/', OnboardingView.as_view(), name='onboarding'),
+    path('dashboard/', DashboardView.as_view(), name='dashboard'),
+    path('project/<int:pk>/', ProjectView.as_view(), name='project_detail'),
+    
+    # API Routes
     path('admin/', admin.site.urls),
     path('api/token/',
          jwt_views.TokenObtainPairView.as_view(),

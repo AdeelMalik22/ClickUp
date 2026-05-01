@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="flex h-screen w-full bg-surface">
+    <!-- Sidebar -->
+    <aside class="w-[260px] bg-sidebarBg text-sidebarText flex flex-col transition-all duration-300 relative z-20 shadow-xl border-r border-[#31353E]">
+        <!-- Workspace Dropdown Area -->
+        <div class="h-14 flex items-center px-4 border-b border-[#3B4048] hover:bg-sidebarHover cursor-pointer group">
+            <div class="w-6 h-6 rounded bg-primary text-white flex items-center justify-center font-bold text-xs shadow-sm shadow-primary/50 mr-2">
+                <span id="workspace-initial">W</span>
+            </div>
+            <div class="flex-1 min-w-0">
+                <h2 id="active-workspace-name" class="text-sm font-semibold text-white truncate">Loading Workspace...</h2>
+            </div>
+            <svg class="w-4 h-4 text-sidebarText group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </div>
+
+        <!-- Sidebar Navigation -->
+        <div class="flex-1 overflow-y-auto py-4 px-2 space-y-6">
+            
+            <!-- Global Views -->
+            <div class="space-y-1">
+                <a href="/dashboard/" class="flex items-center px-2 py-1.5 text-sm font-medium rounded-md hover:bg-sidebarHover hover:text-white transition-colors group">
+                    <svg class="w-4 h-4 mr-3 text-sidebarText group-hover:text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    Home
+                </a>
+            </div>
+
+            <!-- Spaces / Projects -->
+            <div>
+                <div class="flex items-center justify-between px-2 mb-2 group">
+                    <h3 class="text-xs font-semibold text-[#87909E] uppercase tracking-wider group-hover:text-sidebarText transition-colors">Spaces</h3>
+                    <button class="text-sidebarText hover:text-white transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    </button>
+                </div>
+                
+                <div id="project-list" class="space-y-1">
+                    <!-- Projects injected here -->
+                    <div class="px-2 py-2 text-xs text-[#87909E] italic">Loading projects...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- User Section bottom -->
+        <div class="p-4 border-t border-[#3B4048]">
+            <div class="flex items-center cursor-pointer hover:bg-sidebarHover p-2 -mx-2 rounded-md transition-colors" onclick="document.getElementById('logout-btn').click()">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold text-sm">
+                    <span id="user-initial">U</span>
+                </div>
+                <div class="ml-3">
+                    <p id="user-name" class="text-sm font-medium text-white">User</p>
+                    <p class="text-xs text-[#87909E]">Log out</p>
+                </div>
+            </div>
+            <button id="logout-btn" class="hidden"></button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col min-w-0 bg-white">
+        <!-- Topbar -->
+        <header class="h-14 border-b border-borderSubtle flex items-center justify-between px-6 bg-white z-10 shrink-0">
+            <div class="flex items-center flex-1">
+                <!-- Breadcrumbs or Page Title -->
+                {% block header_left %}
+                <h1 class="text-lg font-semibold text-textMain tracking-tight">Home</h1>
+                {% endblock %}
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <!-- Search Box -->
+                <div class="relative w-64 hidden md:block">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="w-4 h-4 text-textMuted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input type="text" class="block w-full pl-10 pr-3 py-1.5 border border-borderSubtle rounded-md leading-5 bg-surfaceHover placeholder-textMuted focus:outline-none focus:bg-white focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm transition-colors" placeholder="Search...">
+                    <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                        <span class="text-xs text-textMuted font-medium border border-borderSubtle rounded px-1.5 shadow-sm">⌘K</span>
+                    </div>
+                </div>
+                
+                <button class="w-8 h-8 rounded-full bg-primary hover:bg-primaryHover text-white flex items-center justify-center shadow-md shadow-primary/20 transition-colors shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="flex-1 overflow-auto bg-surface relative">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+    
+    <!-- Task Slide-over panel container -->
+    <div id="slide-over-container" class="fixed inset-y-0 right-0 z-50 w-full max-w-3xl transform slide-exit pointer-events-none">
+        <div class="absolute inset-0 bg-gray-900/20 backdrop-blur-sm opacity-0 transition-opacity duration-300 pointer-events-auto" id="slide-over-backdrop" onclick="closeTaskPanel()"></div>
+        <div class="absolute right-0 h-full w-full max-w-3xl bg-white shadow-2xl pointer-events-auto flex flex-col border-l border-borderSubtle transform transition-transform duration-300 translate-x-full" id="slide-over-panel">
+            <!-- Modal content goes here, dynamically loaded -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // Global App State
+    let currentWorkspace = null;
+    let currentUser = null;
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+        clearAuth();
+        window.location.href = '/';
+    });
+
+    async function fetchCurrentUser() {
+        // DRF doesn't have a /users/me/ endpoint by default unless configured.
+        // For now, we will decode from JWT or just fetch workspaces and use creator if needed.
+        // Actually, we can hit /workspaces/ to get context.
+        return true;
+    }
+
+    async function loadWorkspaceSidebarData() {
+        try {
+            const res = await fetchWithAuth('/workspaces/');
+            if (res.ok) {
+                const data = await res.json();
+                if (data.results && data.results.length > 0) {
+                    currentWorkspace = data.results[0]; // Just use first for now
+                    
+                    document.getElementById('active-workspace-name').innerText = currentWorkspace.name;
+                    document.getElementById('workspace-initial').innerText = currentWorkspace.name.charAt(0).toUpperCase();
+                    
+                    // Fetch projects for this workspace
+                    loadProjects(currentWorkspace.id);
+                } else {
+                    window.location.href = '/onboarding/';
+                }
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    async function loadProjects(workspaceId) {
+        try {
+            const res = await fetchWithAuth(`/projects/?workspace=${workspaceId}`);
+            if (res.ok) {
+                const data = await res.json();
+                const list = document.getElementById('project-list');
+                list.innerHTML = '';
+                
+                if (data.results && data.results.length > 0) {
+                    data.results.forEach(proj => {
+                        list.innerHTML += `
+                            <a href="/project/${proj.id}/" class="flex items-center px-2 py-1.5 text-sm font-medium rounded-md hover:bg-sidebarHover hover:text-white transition-colors group">
+                                <span class="w-4 h-4 mr-3 rounded-full border-[3px] border-[#87909E] group-hover:border-primary"></span>
+                                <span class="truncate">${proj.name}</span>
+                            </a>
+                        `;
+                    });
+                } else {
+                    list.innerHTML = `<div class="px-2 py-1 text-xs text-[#87909E]">No projects yet.</div>`;
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    // Modal Control
+    function openTaskPanel(taskId) {
+        const container = document.getElementById('slide-over-container');
+        const backdrop = document.getElementById('slide-over-backdrop');
+        const panel = document.getElementById('slide-over-panel');
+        
+        container.classList.remove('slide-exit');
+        container.classList.remove('pointer-events-none');
+        
+        // Trigger animations
+        requestAnimationFrame(() => {
+            backdrop.classList.remove('opacity-0');
+            backdrop.classList.add('opacity-100');
+            panel.classList.remove('translate-x-full');
+            panel.classList.add('translate-x-0');
+        });
+        
+        // Dispatch event for other scripts to load data
+        document.dispatchEvent(new CustomEvent('taskPanelOpened', { detail: { taskId } }));
+    }
+
+    function closeTaskPanel() {
+        const container = document.getElementById('slide-over-container');
+        const backdrop = document.getElementById('slide-over-backdrop');
+        const panel = document.getElementById('slide-over-panel');
+        
+        backdrop.classList.remove('opacity-100');
+        backdrop.classList.add('opacity-0');
+        panel.classList.remove('translate-x-0');
+        panel.classList.add('translate-x-full');
+        
+        setTimeout(() => {
+            container.classList.add('pointer-events-none');
+            panel.innerHTML = ''; // Clear content
+        }, 300);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        loadWorkspaceSidebarData();
+    });
+</script>
+{% endblock %}

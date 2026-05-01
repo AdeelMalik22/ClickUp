@@ -1,0 +1,198 @@
+{% extends 'app_layout.html' %}
+
+{% block title %}Home - ClickUp Clone{% endblock %}
+
+{% block header_left %}
+<div class="flex items-center gap-3">
+    <div class="w-8 h-8 rounded bg-gradient-to-tr from-primary to-purple-400 flex items-center justify-center text-white shadow-sm shadow-primary/20">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+    </div>
+    <h1 class="text-xl font-bold text-textMain tracking-tight">Home</h1>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="p-6 md:p-8 max-w-7xl mx-auto w-full">
+    
+    <!-- Greeting & Quick Actions -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+        <div>
+            <h2 id="greeting-title" class="text-2xl font-bold text-textMain">Good afternoon!</h2>
+            <p class="text-textMuted mt-1">Here's an overview of what's happening.</p>
+        </div>
+        
+        <div class="flex gap-3">
+            <button class="bg-surface hover:bg-surfaceHover text-textMain font-medium px-4 py-2 rounded-lg border border-borderSubtle transition-all shadow-sm">
+                Invite Team
+            </button>
+            <button class="bg-primary hover:bg-primaryHover text-white font-medium px-4 py-2 rounded-lg transition-all shadow-sm shadow-primary/20 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Create Task
+            </button>
+        </div>
+    </div>
+
+    <!-- Metrics Row -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white p-5 rounded-xl border border-borderSubtle shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow cursor-pointer">
+            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <div>
+                <p class="text-sm text-textMuted font-medium">Completed</p>
+                <p class="text-2xl font-bold text-textMain">12</p>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-borderSubtle shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow cursor-pointer">
+            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <div>
+                <p class="text-sm text-textMuted font-medium">Overdue</p>
+                <p class="text-2xl font-bold text-textMain">3</p>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-borderSubtle shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow cursor-pointer">
+            <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-primary">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+            </div>
+            <div>
+                <p class="text-sm text-textMuted font-medium">Next</p>
+                <p class="text-2xl font-bold text-textMain">8</p>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-borderSubtle shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow cursor-pointer">
+            <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            </div>
+            <div>
+                <p class="text-sm text-textMuted font-medium">Members</p>
+                <p class="text-2xl font-bold text-textMain" id="ws-member-count">-</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Recent Tasks (Main Column) -->
+        <div class="lg:col-span-2">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-textMain">My Work</h3>
+                <a href="#" class="text-sm font-medium text-primary hover:underline">View all</a>
+            </div>
+            
+            <div class="bg-white border border-borderSubtle rounded-xl shadow-sm overflow-hidden">
+                <!-- Task item -->
+                <div class="flex items-center gap-4 p-4 border-b border-borderSubtle hover:bg-surfaceHover transition-colors cursor-pointer" onclick="openTaskPanel(1)">
+                    <div class="w-5 h-5 rounded border border-gray-300 flex items-center justify-center shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-textMain truncate">Update landing page copy</p>
+                        <p class="text-xs text-textMuted mt-0.5">Marketing Project • Due Today</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-red-100 text-red-700">Urgent</span>
+                        <div class="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold shadow-sm">U</div>
+                    </div>
+                </div>
+                
+                <!-- Task item -->
+                <div class="flex items-center gap-4 p-4 border-b border-borderSubtle hover:bg-surfaceHover transition-colors cursor-pointer" onclick="openTaskPanel(2)">
+                    <div class="w-5 h-5 rounded border border-gray-300 flex items-center justify-center shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-textMain truncate">Review PR #102 for new feature</p>
+                        <p class="text-xs text-textMuted mt-0.5">Engineering • Due Tomorrow</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-yellow-100 text-yellow-700">High</span>
+                        <div class="w-6 h-6 rounded-full bg-purple-500 text-white flex items-center justify-center text-xs font-bold shadow-sm">J</div>
+                    </div>
+                </div>
+
+                <!-- Empty State Block if no tasks -->
+                <div class="hidden flex-col items-center justify-center py-12 px-4 text-center">
+                    <img src="https://clickup.com/assets/images/empty-states/empty-state-my-work.svg" alt="No tasks" class="w-32 opacity-50 mb-4 filter grayscale">
+                    <h4 class="text-textMain font-semibold">You're all caught up!</h4>
+                    <p class="text-sm text-textMuted mt-1">Enjoy the rest of your day, or create a new task.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar / Activity -->
+        <div>
+            <h3 class="text-lg font-bold text-textMain mb-4">Workspace Details</h3>
+            
+            <div class="bg-white border border-borderSubtle rounded-xl shadow-sm p-5">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-12 h-12 rounded bg-primary text-white flex items-center justify-center font-bold text-xl shadow-sm" id="detail-ws-initial">W</div>
+                    <div>
+                        <h4 class="font-bold text-textMain" id="detail-ws-name">Workspace</h4>
+                        <p class="text-xs text-textMuted">Created recently</p>
+                    </div>
+                </div>
+                
+                <p class="text-sm text-textMuted mb-4 line-clamp-3" id="detail-ws-desc">
+                    Your central hub for all projects and tasks.
+                </p>
+                
+                <hr class="border-borderSubtle mb-4">
+                
+                <h5 class="text-xs font-bold text-textMuted uppercase tracking-wider mb-3">Recent Projects</h5>
+                <ul class="space-y-2" id="detail-project-list">
+                    <li class="text-sm text-textMuted py-2 text-center italic">Loading projects...</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Overriding the loadWorkspaceSidebarData to also populate dashboard
+    const originalLoadWorkspace = window.loadWorkspaceSidebarData;
+    
+    window.loadWorkspaceSidebarData = async function() {
+        if(originalLoadWorkspace) await originalLoadWorkspace();
+        
+        if (currentWorkspace) {
+            document.getElementById('ws-member-count').innerText = currentWorkspace.member_count || 1;
+            document.getElementById('detail-ws-initial').innerText = currentWorkspace.name.charAt(0).toUpperCase();
+            document.getElementById('detail-ws-name').innerText = currentWorkspace.name;
+            if(currentWorkspace.description) {
+                document.getElementById('detail-ws-desc').innerText = currentWorkspace.description;
+            }
+        }
+        
+        // Populate detail projects list
+        try {
+            const res = await fetchWithAuth(`/projects/?workspace=${currentWorkspace.id}&limit=5`);
+            if (res.ok) {
+                const data = await res.json();
+                const list = document.getElementById('detail-project-list');
+                list.innerHTML = '';
+                
+                if (data.results && data.results.length > 0) {
+                    data.results.forEach(proj => {
+                        list.innerHTML += `
+                            <li>
+                                <a href="/project/${proj.id}/" class="flex items-center text-sm text-textMain hover:text-primary transition-colors">
+                                    <svg class="w-4 h-4 mr-2 text-textMuted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+                                    ${proj.name}
+                                </a>
+                            </li>
+                        `;
+                    });
+                } else {
+                    list.innerHTML = `<li class="text-sm text-textMuted italic">No projects created yet.</li>`;
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    };
+    
+    // Set greeting based on time
+    const hour = new Date().getHours();
+    let greeting = "Good evening!";
+    if (hour < 12) greeting = "Good morning!";
+    else if (hour < 17) greeting = "Good afternoon!";
+    document.getElementById('greeting-title').innerText = greeting;
+</script>
+{% endblock %}
