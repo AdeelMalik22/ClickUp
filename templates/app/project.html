@@ -29,9 +29,17 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path></svg>
             Board
         </button>
+        <button id="tab-table" class="py-3 px-1 border-b-2 border-transparent text-textMuted hover:text-textMain font-medium text-sm transition-colors flex items-center gap-2" onclick="switchView('table')">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            Table
+        </button>
+        <button id="tab-calendar" class="py-3 px-1 border-b-2 border-transparent text-textMuted hover:text-textMain font-medium text-sm transition-colors flex items-center gap-2" onclick="switchView('calendar')">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            Calendar
+        </button>
         
         <div class="ml-auto flex items-center gap-2 py-2">
-            <button class="bg-primary/10 text-primary hover:bg-primary/20 font-medium px-3 py-1.5 rounded text-sm transition-colors" onclick="openCreateTaskModal()">
+            <button class="bg-primary/10 text-primary hover:bg-primary/20 font-medium px-3 py-1.5 rounded text-sm transition-colors" onclick="openCreateTaskModal(projectId)">
                 + New Task
             </button>
         </div>
@@ -48,6 +56,64 @@
         <!-- Board View -->
         <div id="view-board" class="hidden h-full flex items-start gap-6 overflow-x-auto pb-4">
             <!-- Dynamic Kanban Columns will go here -->
+        </div>
+
+        <!-- Table View -->
+        <div id="view-table" class="hidden w-full bg-white border border-borderSubtle rounded-lg overflow-hidden flex flex-col shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-textMain border-collapse">
+                    <thead class="bg-surfaceHover text-xs text-textMuted uppercase border-b border-borderSubtle">
+                        <tr>
+                            <th class="px-4 py-3 font-medium border-r border-borderSubtle w-12 text-center">#</th>
+                            <th class="px-4 py-3 font-medium border-r border-borderSubtle">Name</th>
+                            <th class="px-4 py-3 font-medium border-r border-borderSubtle w-32">Assignee</th>
+                            <th class="px-4 py-3 font-medium border-r border-borderSubtle w-36">Status</th>
+                            <th class="px-4 py-3 font-medium border-r border-borderSubtle w-32">Due Date</th>
+                            <th class="px-4 py-3 font-medium w-32">Priority</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body" class="divide-y divide-borderSubtle">
+                        <!-- Tasks go here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Calendar View -->
+        <div id="view-calendar" class="hidden w-full h-full bg-white border border-borderSubtle rounded-lg flex flex-col shadow-sm">
+            <!-- Calendar Header -->
+            <div class="flex items-center justify-between p-4 border-b border-borderSubtle">
+                <div class="flex items-center gap-4">
+                    <h2 id="calendar-month-year" class="text-lg font-bold text-textMain">May 2026</h2>
+                    <div class="flex items-center border border-borderSubtle rounded-md overflow-hidden">
+                        <button onclick="changeCalendarMonth(-1)" class="px-2 py-1 bg-surface hover:bg-surfaceHover text-textMain transition-colors border-r border-borderSubtle">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        </button>
+                        <button onclick="changeCalendarMonth(1)" class="px-2 py-1 bg-surface hover:bg-surfaceHover text-textMain transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </button>
+                    </div>
+                    <button onclick="resetCalendar()" class="px-3 py-1 text-sm font-medium text-textMain bg-surface border border-borderSubtle rounded-md hover:bg-surfaceHover transition-colors shadow-sm">Today</button>
+                </div>
+            </div>
+            
+            <!-- Calendar Grid -->
+            <div class="flex-1 flex flex-col overflow-hidden bg-borderSubtle gap-[1px]">
+                <!-- Days of week -->
+                <div class="grid grid-cols-7 bg-surface">
+                    <div class="py-2 text-center text-xs font-bold text-textMuted uppercase tracking-wider">Sun</div>
+                    <div class="py-2 text-center text-xs font-bold text-textMuted uppercase tracking-wider">Mon</div>
+                    <div class="py-2 text-center text-xs font-bold text-textMuted uppercase tracking-wider">Tue</div>
+                    <div class="py-2 text-center text-xs font-bold text-textMuted uppercase tracking-wider">Wed</div>
+                    <div class="py-2 text-center text-xs font-bold text-textMuted uppercase tracking-wider">Thu</div>
+                    <div class="py-2 text-center text-xs font-bold text-textMuted uppercase tracking-wider">Fri</div>
+                    <div class="py-2 text-center text-xs font-bold text-textMuted uppercase tracking-wider">Sat</div>
+                </div>
+                <!-- Days grid -->
+                <div id="calendar-grid" class="flex-1 grid grid-cols-7 grid-rows-5 gap-[1px]">
+                    <!-- Cells injected via JS -->
+                </div>
+            </div>
         </div>
 
     </div>
@@ -175,6 +241,8 @@
                 tasks = data.results || [];
                 renderListView();
                 renderBoardView();
+                renderTableView();
+                renderCalendarView();
             }
         } catch(e) {
             console.error(e);
@@ -319,17 +387,157 @@
         }
     }
 
-    function switchView(view) {
-        document.getElementById('view-list').classList.add('hidden');
-        document.getElementById('view-board').classList.add('hidden');
-        document.getElementById('tab-list').classList.replace('border-primary', 'border-transparent');
-        document.getElementById('tab-list').classList.replace('text-primary', 'text-textMuted');
-        document.getElementById('tab-board').classList.replace('border-primary', 'border-transparent');
-        document.getElementById('tab-board').classList.replace('text-primary', 'text-textMuted');
+    function renderTableView() {
+        const tbody = document.getElementById('table-body');
+        if(!tbody) return;
+        tbody.innerHTML = '';
         
-        document.getElementById(`view-${view}`).classList.remove('hidden');
-        document.getElementById(`tab-${view}`).classList.replace('border-transparent', 'border-primary');
-        document.getElementById(`tab-${view}`).classList.replace('text-textMuted', 'text-primary');
+        if (tasks.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-textMuted italic">No tasks found</td></tr>`;
+            return;
+        }
+        
+        tasks.forEach((task, index) => {
+            const statusDef = STATUSES[task.status] || {label: 'Unknown', color: 'bg-gray-100 text-gray-700'};
+            const prio = PRIORITIES[task.priority] || {label: 'Normal', badge: 'bg-gray-100 text-gray-700'};
+            
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-surfaceHover transition-colors cursor-pointer group';
+            tr.onclick = () => openTaskPanel(task.id);
+            
+            tr.innerHTML = `
+                <td class="px-4 py-3 border-r border-borderSubtle text-textMuted text-xs text-center">${index + 1}</td>
+                <td class="px-4 py-3 border-r border-borderSubtle font-medium group-hover:text-primary transition-colors">${task.title}</td>
+                <td class="px-4 py-3 border-r border-borderSubtle">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-[10px] font-bold shadow-sm">U</div>
+                    </div>
+                </td>
+                <td class="px-4 py-3 border-r border-borderSubtle">
+                    <span class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide ${statusDef.color}">${statusDef.label}</span>
+                </td>
+                <td class="px-4 py-3 border-r border-borderSubtle text-xs text-textMuted">
+                    ${new Date(task.created_at).toLocaleDateString()}
+                </td>
+                <td class="px-4 py-3">
+                    <span class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide ${prio.badge}">${prio.label}</span>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    let currentCalendarDate = new Date();
+    
+    function changeCalendarMonth(offset) {
+        currentCalendarDate.setMonth(currentCalendarDate.getMonth() + offset);
+        renderCalendarView();
+    }
+    
+    function resetCalendar() {
+        currentCalendarDate = new Date();
+        renderCalendarView();
+    }
+
+    function renderCalendarView() {
+        const grid = document.getElementById('calendar-grid');
+        if (!grid) return;
+        
+        const year = currentCalendarDate.getFullYear();
+        const month = currentCalendarDate.getMonth();
+        
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        document.getElementById('calendar-month-year').innerText = `${monthNames[month]} ${year}`;
+        
+        grid.innerHTML = '';
+        
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        
+        // Group tasks by date (using created_at for demonstration)
+        const tasksByDate = {};
+        tasks.forEach(task => {
+            const date = new Date(task.created_at);
+            if (date.getFullYear() === year && date.getMonth() === month) {
+                const day = date.getDate();
+                if (!tasksByDate[day]) tasksByDate[day] = [];
+                tasksByDate[day].push(task);
+            }
+        });
+        
+        const today = new Date();
+        const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+        const currentDay = today.getDate();
+        
+        // Create 35 or 42 cells depending on the month layout
+        const totalCells = (firstDay + daysInMonth) > 35 ? 42 : 35;
+        // Adjust grid rows based on total cells
+        grid.className = `flex-1 grid grid-cols-7 grid-rows-${totalCells/7} gap-[1px]`;
+        
+        for (let i = 0; i < totalCells; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'bg-white p-1 flex flex-col min-h-[100px] overflow-hidden hover:bg-surfaceHover transition-colors cursor-pointer group relative';
+            
+            const dayNum = i - firstDay + 1;
+            
+            if (i >= firstDay && dayNum <= daysInMonth) {
+                // Active month cell
+                const isToday = isCurrentMonth && dayNum === currentDay;
+                const header = document.createElement('div');
+                header.className = 'flex justify-end mb-1';
+                header.innerHTML = `<span class="text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full ${isToday ? 'bg-primary text-white shadow-sm' : 'text-textMain'}">${dayNum}</span>`;
+                cell.appendChild(header);
+                
+                // Add task pills
+                const dayTasks = tasksByDate[dayNum] || [];
+                dayTasks.slice(0, 3).forEach(task => { // Show up to 3 tasks
+                    const statusDef = STATUSES[task.status] || {color: 'bg-gray-100 text-gray-700'};
+                    const taskEl = document.createElement('div');
+                    taskEl.className = `text-[10px] font-bold truncate px-1.5 py-0.5 rounded mb-1 shadow-sm border border-black/5 ${statusDef.color} hover:opacity-80 transition-opacity`;
+                    taskEl.innerText = task.title;
+                    taskEl.onclick = (e) => { e.stopPropagation(); openTaskPanel(task.id); };
+                    cell.appendChild(taskEl);
+                });
+                
+                if (dayTasks.length > 3) {
+                    const moreEl = document.createElement('div');
+                    moreEl.className = 'text-[10px] text-textMuted font-bold text-center mt-auto pb-1';
+                    moreEl.innerText = `+${dayTasks.length - 3} more`;
+                    cell.appendChild(moreEl);
+                }
+                
+                // Quick add button on hover
+                const quickAdd = document.createElement('button');
+                quickAdd.className = 'absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 text-textMuted hover:text-primary transition-all p-1 bg-white/80 backdrop-blur rounded';
+                quickAdd.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>`;
+                quickAdd.onclick = (e) => { e.stopPropagation(); openCreateTaskModal(projectId); };
+                cell.appendChild(quickAdd);
+                
+            } else {
+                // Empty cell (previous/next month styling)
+                cell.className += ' bg-surface/30';
+            }
+            
+            grid.appendChild(cell);
+        }
+    }
+
+    function switchView(view) {
+        ['list', 'board', 'table', 'calendar'].forEach(v => {
+            const viewEl = document.getElementById(`view-${v}`);
+            const tabEl = document.getElementById(`tab-${v}`);
+            if (viewEl && tabEl) {
+                if (v === view) {
+                    viewEl.classList.remove('hidden');
+                    tabEl.classList.replace('border-transparent', 'border-primary');
+                    tabEl.classList.replace('text-textMuted', 'text-primary');
+                } else {
+                    viewEl.classList.add('hidden');
+                    tabEl.classList.replace('border-primary', 'border-transparent');
+                    tabEl.classList.replace('text-primary', 'text-textMuted');
+                }
+            }
+        });
     }
 
     // Modal Events Setup
@@ -459,35 +667,8 @@
         }
     }
 
-    // A dummy task creation
-    async function openCreateTaskModal() {
-        const title = prompt("Enter new task title:");
-        if(!title) return;
-        
-        try {
-            const res = await fetchWithAuth('/tasks/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    title: title,
-                    project: projectId,
-                    status: 'todo',
-                    priority: 'medium'
-                })
-            });
-            
-            if (res.ok) {
-                showToast('Task created!');
-                fetchTasks();
-            } else {
-                const err = await res.json();
-                console.error(err);
-                showToast('Failed to create task. Check required fields.', 'error');
-            }
-        } catch(e) {
-            showToast('Network error', 'error');
-        }
-    }
+    // Refresh tasks if created from global modal
+    window.addEventListener('taskCreated', fetchTasks);
 
     window.addEventListener('DOMContentLoaded', () => {
         fetchProjectData();

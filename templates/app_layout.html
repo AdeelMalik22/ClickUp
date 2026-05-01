@@ -133,6 +133,54 @@
     </div>
 </div>
 
+<!-- Create Task Modal -->
+<div id="modal-create-task" class="fixed inset-0 z-[60] flex items-center justify-center hidden pointer-events-none">
+    <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity pointer-events-auto" onclick="closeCreateTaskModal()"></div>
+    <div class="bg-white rounded-xl shadow-premium w-full max-w-lg mx-4 relative z-10 pointer-events-auto transform transition-all scale-95 opacity-0" id="modal-create-task-content">
+        <div class="flex items-center justify-between p-4 border-b border-borderSubtle">
+            <h3 class="text-lg font-bold text-textMain">Create New Task</h3>
+            <button class="text-textMuted hover:text-textMain" onclick="closeCreateTaskModal()">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <form id="form-create-task" class="p-6 space-y-4">
+            <div>
+                <label class="block text-sm font-semibold text-textMain mb-1.5">Task Title</label>
+                <input type="text" id="task-title" required 
+                    class="w-full px-4 py-2 bg-surfaceHover border border-borderSubtle rounded-lg focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm"
+                    placeholder="What needs to be done?">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-textMain mb-1.5">Description</label>
+                <textarea id="task-desc" rows="3"
+                    class="w-full px-4 py-2 bg-surfaceHover border border-borderSubtle rounded-lg focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm resize-none"
+                    placeholder="Add details..."></textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-textMain mb-1.5">Space (Project)</label>
+                    <select id="task-project" required class="w-full px-4 py-2 bg-surfaceHover border border-borderSubtle rounded-lg focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-textMain mb-1.5">Priority</label>
+                    <select id="task-priority" class="w-full px-4 py-2 bg-surfaceHover border border-borderSubtle rounded-lg focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                        <option value="urgent">Urgent</option>
+                    </select>
+                </div>
+            </div>
+            <div class="pt-4 flex justify-end gap-3 border-t border-borderSubtle mt-4">
+                <button type="button" class="px-4 py-2 text-sm font-medium text-textMain hover:bg-surfaceHover rounded-lg transition-colors" onclick="closeCreateTaskModal()">Cancel</button>
+                <button type="submit" id="btn-submit-task" class="bg-primary hover:bg-primaryHover text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">Create Task</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     // Global App State
     let currentWorkspace = null;
@@ -165,6 +213,25 @@
             console.error(err);
         }
     }
+    
+    window.toggleSidebarDropdown = function(e, projectId) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.currentDropdownProjectId = projectId;
+        const menu = document.getElementById('sidebar-create-dropdown');
+        menu.style.top = e.clientY + 'px';
+        menu.style.left = e.clientX + 'px';
+        menu.classList.remove('hidden');
+    }
+    
+    window.closeSidebarDropdown = function() {
+        const menu = document.getElementById('sidebar-create-dropdown');
+        if(menu) menu.classList.add('hidden');
+    }
+    
+    document.addEventListener('click', () => {
+        window.closeSidebarDropdown();
+    });
 
     window.loadProjects = async function(workspaceId) {
         try {
@@ -179,10 +246,15 @@
                 if (data.results && data.results.length > 0) {
                     data.results.forEach(proj => {
                         list.innerHTML += `
-                            <a href="/project/${proj.id}/" class="flex items-center px-2 py-1.5 text-sm font-medium rounded-md hover:bg-sidebarHover hover:text-white transition-colors group">
-                                <span class="w-4 h-4 mr-3 rounded-full border-[3px] border-[#87909E] group-hover:border-primary"></span>
-                                <span class="truncate">${proj.name}</span>
-                            </a>
+                            <div class="flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-sidebarHover transition-colors group relative">
+                                <a href="/project/${proj.id}/" class="flex-1 flex items-center text-sm font-medium text-sidebarText group-hover:text-white min-w-0">
+                                    <span class="w-4 h-4 mr-3 rounded-full border-[3px] border-[#87909E] group-hover:border-primary shrink-0"></span>
+                                    <span class="truncate">${proj.name}</span>
+                                </a>
+                                <button onclick="toggleSidebarDropdown(event, '${proj.id}')" class="opacity-0 group-hover:opacity-100 text-sidebarText hover:text-white p-1 ml-1 shrink-0">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                </button>
+                            </div>
                         `;
                     });
                 } else {
@@ -294,6 +366,92 @@
         } finally {
             btn.disabled = false;
             btn.innerHTML = 'Create';
+        }
+    });
+
+    // Global Task Creation Modal Logic
+    window.openCreateTaskModal = function(defaultProjectId = null) {
+        if (!window.workspaceProjects || window.workspaceProjects.length === 0) {
+            showToast("Please create a Space (Project) first.", "error");
+            openCreateProjectModal();
+            return;
+        }
+        
+        const select = document.getElementById('task-project');
+        select.innerHTML = '';
+        window.workspaceProjects.forEach(p => {
+            const isSelected = (p.id == defaultProjectId) ? 'selected' : '';
+            select.innerHTML += `<option value="${p.id}" ${isSelected}>${p.name}</option>`;
+        });
+        
+        const modal = document.getElementById('modal-create-task');
+        const content = document.getElementById('modal-create-task-content');
+        modal.classList.remove('hidden');
+        
+        requestAnimationFrame(() => {
+            content.classList.remove('scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+        });
+        document.getElementById('task-title').focus();
+    }
+    
+    window.closeCreateTaskModal = function() {
+        const modal = document.getElementById('modal-create-task');
+        const content = document.getElementById('modal-create-task-content');
+        
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            document.getElementById('form-create-task').reset();
+        }, 200);
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('form-create-task');
+        if(form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const title = document.getElementById('task-title').value;
+                const description = document.getElementById('task-desc').value;
+                const project = document.getElementById('task-project').value;
+                const priority = document.getElementById('task-priority').value;
+                const btn = document.getElementById('btn-submit-task');
+                
+                btn.disabled = true;
+                btn.innerHTML = 'Creating...';
+                
+                try {
+                    const res = await fetchWithAuth('/tasks/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            title,
+                            description,
+                            project,
+                            priority,
+                            status: 'todo'
+                        })
+                    });
+                    
+                    if (res.ok) {
+                        showToast("Task created successfully!");
+                        closeCreateTaskModal();
+                        window.dispatchEvent(new CustomEvent('taskCreated'));
+                    } else {
+                        const data = await res.json();
+                        let err = "Failed to create task.";
+                        if(typeof data === 'object') err = data[Object.keys(data)[0]];
+                        showToast(err, "error");
+                    }
+                } catch(err) {
+                    showToast("Network error", "error");
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Create Task';
+                }
+            });
         }
     });
 
