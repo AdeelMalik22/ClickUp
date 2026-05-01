@@ -1,0 +1,75 @@
+
+# =========================
+# Python cache files
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# =========================
+# Environments
+# =========================
+.env
+.venv/
+venv/
+ENV/
+env/
+
+# =========================
+# Django stuff
+# =========================
+*.log
+db.sqlite3
+media/
+staticfiles/
+
+# Migrations (optional - only if you want clean resets often)
+# If you are actively developing, DO NOT ignore migrations
+# migrations/
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Testing / coverage
+# =========================
+htmlcov/
+.coverage
+*.cover
+.pytest_cache/
+
+# =========================
+# MyPy / type checking
+# =========================
+.mypy_cache/
+.dmypy.json
+
+# =========================
+# Celery (if used)
+# =========================
+celerybeat-schedule
+
+# =========================
+# Logs / runtime
+# =========================
+*.pid
+*.seed
+
+# =========================
+# Jupyter (if used)
+# =========================
+.ipynb_checkpoints/
