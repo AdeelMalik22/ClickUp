@@ -57,8 +57,15 @@
 <template id="task-detail-template">
     <div class="flex flex-col h-full">
         <div class="flex items-center justify-between p-4 border-b border-borderSubtle bg-white shrink-0">
-            <div class="flex items-center gap-2 text-xs font-medium uppercase tracking-wide px-2 py-1 rounded" id="modal-status-badge">
-                STATUS
+            <div class="flex items-center gap-2">
+                <select id="modal-status-select" class="text-xs font-bold uppercase tracking-wide px-2 py-1.5 rounded cursor-pointer outline-none appearance-none bg-surfaceHover border border-borderSubtle hover:bg-gray-100 transition-colors">
+                    <option value="todo">To Do</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="review">Review</option>
+                    <option value="completed">Completed</option>
+                    <option value="on_hold">On Hold</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
             </div>
             <div class="flex items-center gap-2">
                 <button class="text-textMuted hover:text-textMain p-1" onclick="closeTaskPanel()">
@@ -81,9 +88,12 @@
                     </div>
                     <div>
                         <p class="text-xs text-textMuted font-medium mb-1 uppercase tracking-wide">Priority</p>
-                        <div class="flex items-center gap-2 text-sm font-medium text-textMain" id="modal-priority">
-                            Normal
-                        </div>
+                        <select id="modal-priority-select" class="text-xs font-bold uppercase tracking-wide px-2 py-1.5 rounded cursor-pointer outline-none appearance-none bg-surfaceHover border border-borderSubtle hover:bg-gray-100 transition-colors">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="urgent">Urgent</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -115,7 +125,7 @@
 </template>
 
 <script>
-    const projectId = {{ view.kwargs.pk }};
+    const projectId = "{{ view.kwargs.pk }}";
     let currentProject = null;
     let tasks = [];
 
@@ -339,15 +349,50 @@
                 document.getElementById('modal-title').innerText = task.title;
                 document.getElementById('modal-desc').innerText = task.description || 'No description provided.';
                 
-                const statusDef = STATUSES[task.status] || {label: 'Unknown', color: 'bg-gray-100 text-gray-700'};
-                const badge = document.getElementById('modal-status-badge');
-                badge.innerText = statusDef.label;
-                badge.className = `flex items-center gap-2 text-xs font-bold uppercase tracking-wide px-2 py-1 rounded ${statusDef.color}`;
+                const statusSelect = document.getElementById('modal-status-select');
+                statusSelect.value = task.status;
+                statusSelect.className = `text-xs font-bold uppercase tracking-wide px-2 py-1.5 rounded cursor-pointer outline-none appearance-none border transition-colors ${STATUSES[task.status] ? STATUSES[task.status].color + ' ' + STATUSES[task.status].border : 'bg-surfaceHover border-borderSubtle'}`;
                 
-                const prio = PRIORITIES[task.priority];
-                if(prio) {
-                    document.getElementById('modal-priority').innerHTML = `<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${prio.badge}">${prio.label}</span>`;
-                }
+                statusSelect.onchange = async (e) => {
+                    const newStatus = e.target.value;
+                    try {
+                        const r = await fetchWithAuth(`/tasks/update_status/${taskId}/`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ status: newStatus })
+                        });
+                        if(r.ok) {
+                            showToast(`Status updated to ${STATUSES[newStatus].label}`);
+                            fetchTasks(); // update background
+                            // Update select color
+                            statusSelect.className = `text-xs font-bold uppercase tracking-wide px-2 py-1.5 rounded cursor-pointer outline-none appearance-none border transition-colors ${STATUSES[newStatus].color} ${STATUSES[newStatus].border}`;
+                        } else showToast('Failed to update status', 'error');
+                    } catch(err) { showToast('Network error', 'error'); }
+                };
+                
+                const prioritySelect = document.getElementById('modal-priority-select');
+                prioritySelect.value = task.priority;
+                const setPrioClass = (val) => {
+                    const p = PRIORITIES[val];
+                    prioritySelect.className = `text-xs font-bold uppercase tracking-wide px-2 py-1.5 rounded cursor-pointer outline-none appearance-none border transition-colors ${p ? p.badge : 'bg-surfaceHover border-borderSubtle'}`;
+                };
+                setPrioClass(task.priority);
+                
+                prioritySelect.onchange = async (e) => {
+                    const newPrio = e.target.value;
+                    try {
+                        const r = await fetchWithAuth(`/tasks/${taskId}/`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ priority: newPrio })
+                        });
+                        if(r.ok) {
+                            showToast('Priority updated');
+                            fetchTasks(); // update background
+                            setPrioClass(newPrio);
+                        } else showToast('Failed to update priority', 'error');
+                    } catch(err) { showToast('Network error', 'error'); }
+                };
 
                 // Load Comments
                 loadComments(taskId);

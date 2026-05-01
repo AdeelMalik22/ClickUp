@@ -30,7 +30,7 @@
             <div>
                 <div class="flex items-center justify-between px-2 mb-2 group">
                     <h3 class="text-xs font-semibold text-[#87909E] uppercase tracking-wider group-hover:text-sidebarText transition-colors">Spaces</h3>
-                    <button class="text-sidebarText hover:text-white transition-colors">
+                    <button class="text-sidebarText hover:text-white transition-colors p-1" onclick="openCreateProjectModal()" title="Create Space">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                     </button>
                 </div>
@@ -93,11 +93,43 @@
     </main>
     
     <!-- Task Slide-over panel container -->
-    <div id="slide-over-container" class="fixed inset-y-0 right-0 z-50 w-full max-w-3xl transform slide-exit pointer-events-none">
-        <div class="absolute inset-0 bg-gray-900/20 backdrop-blur-sm opacity-0 transition-opacity duration-300 pointer-events-auto" id="slide-over-backdrop" onclick="closeTaskPanel()"></div>
-        <div class="absolute right-0 h-full w-full max-w-3xl bg-white shadow-2xl pointer-events-auto flex flex-col border-l border-borderSubtle transform transition-transform duration-300 translate-x-full" id="slide-over-panel">
+    <div id="slide-over-container" class="fixed inset-y-0 right-0 z-50 w-full max-w-3xl transform slide-exit pointer-events-none hidden">
+        <div class="absolute inset-0 bg-gray-900/20 backdrop-blur-sm opacity-0 transition-opacity duration-300" id="slide-over-backdrop" onclick="closeTaskPanel()"></div>
+        <div class="absolute right-0 h-full w-full max-w-3xl bg-white shadow-2xl flex flex-col border-l border-borderSubtle transform transition-transform duration-300 translate-x-full" id="slide-over-panel">
             <!-- Modal content goes here, dynamically loaded -->
         </div>
+    </div>
+</div>
+
+<!-- Global Modals -->
+<!-- Create Project Modal -->
+<div id="modal-create-project" class="fixed inset-0 z-[60] flex items-center justify-center hidden pointer-events-none">
+    <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity pointer-events-auto" onclick="closeCreateProjectModal()"></div>
+    <div class="bg-white rounded-xl shadow-premium w-full max-w-md mx-4 relative z-10 pointer-events-auto transform transition-all scale-95 opacity-0" id="modal-create-project-content">
+        <div class="flex items-center justify-between p-4 border-b border-borderSubtle">
+            <h3 class="text-lg font-bold text-textMain">Create Space (Project)</h3>
+            <button class="text-textMuted hover:text-textMain" onclick="closeCreateProjectModal()">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <form id="form-create-project" class="p-6 space-y-4">
+            <div>
+                <label for="project-name" class="block text-sm font-semibold text-textMain mb-1.5">Space Name</label>
+                <input type="text" id="project-name" required 
+                    class="w-full px-4 py-2 bg-surfaceHover border border-borderSubtle rounded-lg focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm"
+                    placeholder="e.g. Marketing, Development">
+            </div>
+            <div>
+                <label for="project-desc" class="block text-sm font-semibold text-textMain mb-1.5">Description</label>
+                <textarea id="project-desc" rows="3"
+                    class="w-full px-4 py-2 bg-surfaceHover border border-borderSubtle rounded-lg focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm resize-none"
+                    placeholder="Optional details..."></textarea>
+            </div>
+            <div class="pt-4 flex justify-end gap-3">
+                <button type="button" class="px-4 py-2 text-sm font-medium text-textMain hover:bg-surfaceHover rounded-lg transition-colors" onclick="closeCreateProjectModal()">Cancel</button>
+                <button type="submit" id="btn-submit-project" class="bg-primary hover:bg-primaryHover text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">Create</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -111,14 +143,7 @@
         window.location.href = '/';
     });
 
-    async function fetchCurrentUser() {
-        // DRF doesn't have a /users/me/ endpoint by default unless configured.
-        // For now, we will decode from JWT or just fetch workspaces and use creator if needed.
-        // Actually, we can hit /workspaces/ to get context.
-        return true;
-    }
-
-    async function loadWorkspaceSidebarData() {
+    window.loadWorkspaceSidebarData = async function() {
         try {
             const res = await fetchWithAuth('/workspaces/');
             if (res.ok) {
@@ -130,7 +155,8 @@
                     document.getElementById('workspace-initial').innerText = currentWorkspace.name.charAt(0).toUpperCase();
                     
                     // Fetch projects for this workspace
-                    loadProjects(currentWorkspace.id);
+                    window.loadProjects(currentWorkspace.id);
+                    document.dispatchEvent(new CustomEvent('workspaceLoaded', { detail: currentWorkspace }));
                 } else {
                     window.location.href = '/onboarding/';
                 }
@@ -140,13 +166,15 @@
         }
     }
 
-    async function loadProjects(workspaceId) {
+    window.loadProjects = async function(workspaceId) {
         try {
             const res = await fetchWithAuth(`/projects/?workspace=${workspaceId}`);
             if (res.ok) {
                 const data = await res.json();
                 const list = document.getElementById('project-list');
                 list.innerHTML = '';
+                
+                window.workspaceProjects = data.results || [];
                 
                 if (data.results && data.results.length > 0) {
                     data.results.forEach(proj => {
@@ -158,7 +186,7 @@
                         `;
                     });
                 } else {
-                    list.innerHTML = `<div class="px-2 py-1 text-xs text-[#87909E]">No projects yet.</div>`;
+                    list.innerHTML = `<div class="px-2 py-1 text-xs text-[#87909E]">No spaces yet.</div>`;
                 }
             }
         } catch (e) {
@@ -166,16 +194,15 @@
         }
     }
 
-    // Modal Control
+    // Modal Control for Task Panel
     function openTaskPanel(taskId) {
         const container = document.getElementById('slide-over-container');
         const backdrop = document.getElementById('slide-over-backdrop');
         const panel = document.getElementById('slide-over-panel');
         
-        container.classList.remove('slide-exit');
+        container.classList.remove('slide-exit', 'hidden');
         container.classList.remove('pointer-events-none');
         
-        // Trigger animations
         requestAnimationFrame(() => {
             backdrop.classList.remove('opacity-0');
             backdrop.classList.add('opacity-100');
@@ -183,7 +210,6 @@
             panel.classList.add('translate-x-0');
         });
         
-        // Dispatch event for other scripts to load data
         document.dispatchEvent(new CustomEvent('taskPanelOpened', { detail: { taskId } }));
     }
 
@@ -199,12 +225,80 @@
         
         setTimeout(() => {
             container.classList.add('pointer-events-none');
-            panel.innerHTML = ''; // Clear content
+            panel.innerHTML = ''; 
         }, 300);
     }
+    
+    // Project Creation Workflow
+    function openCreateProjectModal() {
+        if (!currentWorkspace) {
+            showToast("Workspace not loaded yet", "error");
+            return;
+        }
+        const modal = document.getElementById('modal-create-project');
+        const content = document.getElementById('modal-create-project-content');
+        modal.classList.remove('hidden');
+        
+        requestAnimationFrame(() => {
+            content.classList.remove('scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+        });
+        document.getElementById('project-name').focus();
+    }
+    
+    function closeCreateProjectModal() {
+        const modal = document.getElementById('modal-create-project');
+        const content = document.getElementById('modal-create-project-content');
+        
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            document.getElementById('form-create-project').reset();
+        }, 200);
+    }
+    
+    document.getElementById('form-create-project').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('project-name').value;
+        const description = document.getElementById('project-desc').value;
+        const btn = document.getElementById('btn-submit-project');
+        
+        btn.disabled = true;
+        btn.innerHTML = 'Creating...';
+        
+        try {
+            const res = await fetchWithAuth('/projects/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name,
+                    description,
+                    workspace: currentWorkspace.id
+                })
+            });
+            
+            if (res.ok) {
+                showToast("Space created successfully!");
+                closeCreateProjectModal();
+                loadProjects(currentWorkspace.id);
+            } else {
+                const data = await res.json();
+                let err = "Failed to create space.";
+                if(typeof data === 'object') err = data[Object.keys(data)[0]];
+                showToast(err, "error");
+            }
+        } catch(err) {
+            showToast("Network error", "error");
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Create';
+        }
+    });
 
     window.addEventListener('DOMContentLoaded', () => {
-        loadWorkspaceSidebarData();
+        if(window.loadWorkspaceSidebarData) window.loadWorkspaceSidebarData();
     });
 </script>
 {% endblock %}
