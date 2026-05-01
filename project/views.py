@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, serializers
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
@@ -7,7 +7,6 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from project.models import Project, Task, TaskComment
 from project.serializers import ProjectSerializer, TaskSerializer, TaskCommentSerializer
-from project.permissions import IsProjectMember, IsWorkspaceMember
 
 
 class CreateProject(viewsets.ModelViewSet):
@@ -60,9 +59,9 @@ class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['status', 'project', 'assignee', 'reporter']
-    search_fields = ['title', 'description']
-    ordering_fields = ['created_at', 'due_date', 'title']
+    filterset_fields = ['status', 'project', 'assignee', 'reporter', 'start_date', 'due_date']
+    search_fields = ['title', 'description', 'tags']
+    ordering_fields = ['created_at', 'due_date', 'start_date', 'title']
     ordering = ['-created_at']
 
     def get_queryset(self):
@@ -73,14 +72,10 @@ class TaskViewSet(viewsets.ModelViewSet):
         serializer.save(reporter=reporter)
 
     def perform_update(self, serializer):
-        instance = serializer.save()
-        # Prevent status update through regular update endpoint
-        if 'status' in self.request.data or 'is_completed' in self.request.data:
-            return Response(
-                {"detail": "Use the update_status endpoint to change task status."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        instance.save()
+         # Prevent status update through regular update endpoint
+         if 'status' in self.request.data or 'is_completed' in self.request.data:
+             raise serializers.ValidationError("Use the update_status endpoint to change task status.")
+         serializer.save()
 
     def perform_destroy(self, instance):
         # Only allow reporter, assignee, or admins to delete
@@ -101,24 +96,23 @@ class TaskDetailAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self, request,pk=None):
+    def get(self, request, pk=None):
         if pk:
-            task = self.get_object(pk)
+            task = get_object_or_404(Task, pk=pk)
             serializer = TaskSerializer(task)
             return Response(serializer.data)
         task = Task.objects.all()
-        serializer = TaskSerializer(task,many=True)
+        serializer = TaskSerializer(task, many=True)
         return Response(serializer.data)
 
-
     def patch(self, request, pk):
-        if  "status" or "is_completed" in request.data:
+        if 'status' in request.data or 'is_completed' in request.data:
             return Response(
                 {"detail": "Status updates are not allowed via this endpoint."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        task = self.get_object(pk)
+        task = get_object_or_404(Task, pk=pk)
         serializer = TaskSerializer(task, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -126,7 +120,7 @@ class TaskDetailAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
-        task = self.get_object(pk)
+        task = get_object_or_404(Task, pk=pk)
         if request.user not in [task.reporter, task.assignee] and not request.user.is_superuser:
             return Response(
                 {"detail": "You do not have permission to delete this task."},

@@ -136,31 +136,53 @@
 <!-- Create Task Modal -->
 <div id="modal-create-task" class="fixed inset-0 z-[60] flex items-center justify-center hidden pointer-events-none">
     <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity pointer-events-auto" onclick="closeCreateTaskModal()"></div>
-    <div class="bg-white rounded-xl shadow-premium w-full max-w-lg mx-4 relative z-10 pointer-events-auto transform transition-all scale-95 opacity-0" id="modal-create-task-content">
+    <div class="bg-white rounded-xl shadow-premium w-full max-w-3xl mx-4 relative z-10 pointer-events-auto transform transition-all scale-95 opacity-0" id="modal-create-task-content">
         <div class="flex items-center justify-between p-4 border-b border-borderSubtle">
             <h3 class="text-lg font-bold text-textMain">Create New Task</h3>
             <button class="text-textMuted hover:text-textMain" onclick="closeCreateTaskModal()">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
         </div>
-        <form id="form-create-task" class="p-6 space-y-4">
-            <div>
-                <label class="block text-sm font-semibold text-textMain mb-1.5">Task Title</label>
-                <input type="text" id="task-title" required 
-                    class="w-full px-4 py-2 bg-surfaceHover border border-borderSubtle rounded-lg focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm"
-                    placeholder="What needs to be done?">
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-textMain mb-1.5">Description</label>
-                <textarea id="task-desc" rows="3"
-                    class="w-full px-4 py-2 bg-surfaceHover border border-borderSubtle rounded-lg focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm resize-none"
-                    placeholder="Add details..."></textarea>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
+        <form id="form-create-task" class="p-6 space-y-5">
+            <div class="grid md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-semibold text-textMain mb-1.5">Space (Project)</label>
                     <select id="task-project" required class="w-full px-4 py-2 bg-surfaceHover border border-borderSubtle rounded-lg focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm">
                         <!-- Populated dynamically -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-textMain mb-1.5">Status</label>
+                    <select id="task-status" class="w-full px-4 py-2 bg-surfaceHover border border-borderSubtle rounded-lg focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm">
+                        <option value="todo" selected>To Do</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="review">Review</option>
+                        <option value="on_hold">On Hold</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-textMain mb-1.5">Task Title</label>
+                <input type="text" id="task-title" required 
+                    class="w-full px-4 py-2 bg-surfaceHover border border-borderSubtle rounded-lg focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm"
+                    placeholder="Task name or type '/' for commands">
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-textMain mb-1.5">Description</label>
+                <textarea id="task-desc" rows="4"
+                    class="w-full px-4 py-3 bg-surfaceHover border border-borderSubtle rounded-lg focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm resize-none"
+                    placeholder="Add description, or write with AI"></textarea>
+            </div>
+
+            <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-textMain mb-1.5">Assignee</label>
+                    <select id="task-assignee" class="w-full px-4 py-2 bg-surfaceHover border border-borderSubtle rounded-lg focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm">
+                        <option value="">Unassigned</option>
                     </select>
                 </div>
                 <div>
@@ -172,8 +194,37 @@
                         <option value="urgent">Urgent</option>
                     </select>
                 </div>
+                <div>
+                    <label class="block text-sm font-semibold text-textMain mb-1.5">Time estimate (mins)</label>
+                    <input id="task-time-estimate" type="number" min="0" step="1"
+                        class="w-full px-4 py-2 bg-surfaceHover border border-borderSubtle rounded-lg focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm"
+                        placeholder="e.g. 60">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-textMain mb-1.5">Start date</label>
+                    <input id="task-start-date" type="date"
+                        class="w-full px-4 py-2 bg-surfaceHover border border-borderSubtle rounded-lg focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-textMain mb-1.5">Due date</label>
+                    <input id="task-due-date" type="date"
+                        class="w-full px-4 py-2 bg-surfaceHover border border-borderSubtle rounded-lg focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-textMain mb-1.5">Tags</label>
+                    <input id="task-tags" type="text"
+                        class="w-full px-4 py-2 bg-surfaceHover border border-borderSubtle rounded-lg focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm"
+                        placeholder="marketing, frontend, urgent">
+                </div>
             </div>
-            <div class="pt-4 flex justify-end gap-3 border-t border-borderSubtle mt-4">
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <button type="button" class="px-4 py-2 text-sm font-medium text-textMain hover:bg-surfaceHover rounded-lg border border-borderSubtle transition-colors" onclick="handleAddSubtask()">+ Add subtask</button>
+                <button type="button" class="px-4 py-2 text-sm font-medium text-textMain hover:bg-surfaceHover rounded-lg border border-borderSubtle transition-colors" onclick="handleCreateChecklist()">Create checklist</button>
+                <button type="button" class="px-4 py-2 text-sm font-medium text-textMain hover:bg-surfaceHover rounded-lg border border-borderSubtle transition-colors" onclick="handleAttachFile()">Attach file</button>
+            </div>
+
+            <div class="pt-4 flex justify-end gap-3 border-t border-borderSubtle mt-2">
                 <button type="button" class="px-4 py-2 text-sm font-medium text-textMain hover:bg-surfaceHover rounded-lg transition-colors" onclick="closeCreateTaskModal()">Cancel</button>
                 <button type="submit" id="btn-submit-task" class="bg-primary hover:bg-primaryHover text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">Create Task</button>
             </div>
@@ -185,6 +236,52 @@
     // Global App State
     let currentWorkspace = null;
     let currentUser = null;
+
+    function formatDateForInput(value) {
+        if (!value) return '';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return '';
+        return date.toISOString().slice(0, 10);
+    }
+
+    function dateInputToIso(value) {
+        if (!value) return null;
+        return `${value}T00:00:00Z`;
+    }
+
+    function populateTaskAssigneeOptions(selectEl, selectedValue = '') {
+        if (!selectEl) return;
+        selectEl.innerHTML = '<option value="">Unassigned</option>';
+        const memberships = (window.currentWorkspace && Array.isArray(window.currentWorkspace.memberships)) ? window.currentWorkspace.memberships : [];
+        memberships.forEach(member => {
+            const option = document.createElement('option');
+            option.value = member.user_id || member.user;
+            option.textContent = `${member.user_name || member.user_email || 'User'}${member.role ? ` (${member.role})` : ''}`;
+            selectEl.appendChild(option);
+        });
+        selectEl.value = selectedValue || '';
+    }
+
+    // Global Quick Actions Handlers
+    function handleAddSubtask() {
+        showToast('Subtasks coming soon - feature in development', 'info');
+    }
+
+    function handleCreateChecklist() {
+        showToast('Checklists coming soon - feature in development', 'info');
+    }
+
+    function handleAttachFile() {
+        showToast('File attachments coming soon - feature in development', 'info');
+    }
+
+    function handleDependencies() {
+        showToast('Task dependencies coming soon - feature in development', 'info');
+    }
+
+    function handleTrackTime() {
+        showToast('Time tracking coming soon - feature in development', 'info');
+    }
 
     document.getElementById('logout-btn').addEventListener('click', () => {
         clearAuth();
@@ -198,7 +295,8 @@
                 const data = await res.json();
                 if (data.results && data.results.length > 0) {
                     currentWorkspace = data.results[0]; // Just use first for now
-                    
+                    window.currentWorkspace = currentWorkspace;
+
                     document.getElementById('active-workspace-name').innerText = currentWorkspace.name;
                     document.getElementById('workspace-initial').innerText = currentWorkspace.name.charAt(0).toUpperCase();
                     
@@ -384,6 +482,10 @@
             select.innerHTML += `<option value="${p.id}" ${isSelected}>${p.name}</option>`;
         });
         
+        populateTaskAssigneeOptions(document.getElementById('task-assignee'));
+        document.getElementById('task-status').value = 'todo';
+        document.getElementById('task-priority').value = 'medium';
+
         const modal = document.getElementById('modal-create-task');
         const content = document.getElementById('modal-create-task-content');
         modal.classList.remove('hidden');
@@ -416,7 +518,13 @@
                 const title = document.getElementById('task-title').value;
                 const description = document.getElementById('task-desc').value;
                 const project = document.getElementById('task-project').value;
+                const assignee = document.getElementById('task-assignee').value;
+                const status = document.getElementById('task-status').value;
                 const priority = document.getElementById('task-priority').value;
+                const start_date = dateInputToIso(document.getElementById('task-start-date').value);
+                const due_date = dateInputToIso(document.getElementById('task-due-date').value);
+                const time_estimate_minutes = document.getElementById('task-time-estimate').value;
+                const tags = document.getElementById('task-tags').value;
                 const btn = document.getElementById('btn-submit-task');
                 
                 btn.disabled = true;
@@ -430,8 +538,13 @@
                             title,
                             description,
                             project,
+                            assignee: assignee || null,
                             priority,
-                            status: 'todo'
+                            status,
+                            start_date,
+                            due_date,
+                            time_estimate_minutes: time_estimate_minutes || null,
+                            tags
                         })
                     });
                     

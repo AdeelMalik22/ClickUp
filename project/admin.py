@@ -26,24 +26,28 @@ class ProjectAdmin(admin.ModelAdmin):
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ('title', 'project', 'status', 'priority', 'reporter', 'assignee', 'is_completed', 'due_date', 'created_at')
-    list_filter = ('status', 'priority', 'is_completed', 'created_at', 'due_date', 'project')
-    search_fields = ('title', 'project__name', 'reporter__username', 'assignee__username')
+    list_display = ('title', 'project', 'status', 'priority', 'reporter', 'assignee', 'start_date', 'due_date', 'time_estimate_minutes', 'is_completed', 'created_at')
+    list_filter = ('status', 'priority', 'is_completed', 'created_at', 'due_date', 'start_date', 'project')
+    search_fields = ('title', 'project__name', 'reporter__username', 'assignee__username', 'tags')
     ordering = ['-created_at']
     readonly_fields = ['id', 'created_at', 'updated_at']
 
     fieldsets = (
         ('Task Info', {
-            'fields': ('id', 'title', 'description')
+            'fields': ('id', 'title', 'description', 'tags')
         }),
         ('Project & People', {
             'fields': ('project', 'reporter', 'assignee')
         }),
+        ('Dates & Estimate', {
+            'fields': ('start_date', 'due_date', 'time_estimate_minutes')
+        }),
         ('Status & Priority', {
             'fields': ('status', 'priority', 'is_completed')
         }),
-        ('Dates', {
-            'fields': ('due_date', 'created_at', 'updated_at')
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
         }),
     )
 
@@ -80,4 +84,3 @@ class TaskAssigneeAdmin(admin.ModelAdmin):
     search_fields = ('task__title', 'user__username')
     ordering = ['-assigned_at']
     readonly_fields = ['id', 'assigned_at']
-

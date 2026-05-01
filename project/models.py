@@ -47,9 +47,12 @@ class Task(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='tasks')
     reporter = models.ForeignKey(User, on_delete=models.CASCADE, related_name='task_reporter')
     assignee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='task_assignee', null=True, blank=True)
+    start_date = models.DateTimeField(null=True, blank=True)
+    due_date = models.DateTimeField(null=True, blank=True)
+    time_estimate_minutes = models.PositiveIntegerField(null=True, blank=True)
+    tags = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    due_date = models.DateTimeField(null=True, blank=True)
     is_completed = models.BooleanField(default=False)
 
     def __str__(self):
@@ -62,6 +65,8 @@ class Task(models.Model):
             models.Index(fields=['assignee']),
             models.Index(fields=['reporter']),
             models.Index(fields=['priority']),
+            models.Index(fields=['start_date']),
+            models.Index(fields=['due_date']),
         ]
 
 class TaskAssignee(models.Model):
@@ -94,4 +99,3 @@ class TaskComment(models.Model):
             models.Index(fields=['task', '-created_at']),
             models.Index(fields=['user']),
         ]
-
