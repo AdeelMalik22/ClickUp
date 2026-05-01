@@ -13,14 +13,40 @@ class Project(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['workspace', '-created_at']),
+            models.Index(fields=['created_by']),
+        ]
+
 
 class Task(models.Model):
+    class StatusChoices(models.TextChoices):
+        TODO = 'todo', 'TODO'
+        IN_PROGRESS = 'in_progress', 'In Progress'
+        REVIEW = 'review', 'Review'
+        COMPLETED = 'completed', 'Completed'
+        ON_HOLD = 'on_hold', 'On Hold'
+        CANCELLED = 'cancelled', 'Cancelled'
+
+    class PriorityChoices(models.TextChoices):
+        LOW = 'low', 'Low'
+        MEDIUM = 'medium', 'Medium'
+        HIGH = 'high', 'High'
+        URGENT = 'urgent', 'Urgent'
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='projects')
+    status = models.CharField(choices=StatusChoices, default='todo', max_length=20)
+    priority = models.CharField(choices=PriorityChoices, default='medium', max_length=20)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='tasks')
     reporter = models.ForeignKey(User, on_delete=models.CASCADE, related_name='task_reporter')
-    assignee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='task_assignee')
+    assignee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='task_assignee', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     due_date = models.DateTimeField(null=True, blank=True)
@@ -28,6 +54,15 @@ class Task(models.Model):
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['project', 'status']),
+            models.Index(fields=['assignee']),
+            models.Index(fields=['reporter']),
+            models.Index(fields=['priority']),
+        ]
 
 class TaskAssignee(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -38,6 +73,9 @@ class TaskAssignee(models.Model):
     def __str__(self):
         return f"{self.user.username} assigned to {self.task.title}"
 
+    class Meta:
+        unique_together = ('task', 'user')
+
 class TaskComment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='comments')
@@ -46,3 +84,14 @@ class TaskComment(models.Model):
     edited = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Comment by {self.user.username} on {self.task.title}"
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['task', '-created_at']),
+            models.Index(fields=['user']),
+        ]
+
