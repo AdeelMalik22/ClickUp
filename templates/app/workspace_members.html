@@ -1,0 +1,267 @@
+{% extends 'app_layout.html' %}
+
+{% block header_left %}
+<div class="flex items-center gap-3">
+    <a href="/workspaces/" class="text-textMuted hover:text-textMain transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18">
+            </path>
+        </svg>
+    </a>
+    <h1 id="ws-title" class="text-xl font-bold text-textMain tracking-tight">Workspace Members</h1>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="px-8 py-6 max-w-5xl mx-auto">
+    <!-- Tabs -->
+    <div class="flex border-b border-borderSubtle mb-8">
+        <button id="btn-settings-tab"
+            class="px-4 py-3 border-b-2 border-transparent font-medium text-textMuted hover:text-textMain hover:border-borderSubtle text-sm transition-colors">General
+            Settings</button>
+        <button class="px-4 py-3 border-b-2 border-primary font-semibold text-primary text-sm">Members &
+            Invites</button>
+    </div>
+
+    <!-- Top Action -->
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="text-lg font-bold text-textMain">Manage Access</h3>
+        <button onclick="document.getElementById('modal-invite-member').classList.remove('hidden')"
+            class="bg-primary hover:bg-primaryHover text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+            + Invite Member
+        </button>
+    </div>
+
+    <!-- Active Members List -->
+    <div class="bg-white rounded-xl shadow-sm border border-borderSubtle overflow-hidden mb-8">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-surfaceHover text-xs font-semibold text-textMuted uppercase tracking-wider">
+                    <th class="px-6 py-3 border-b border-borderSubtle">User</th>
+                    <th class="px-6 py-3 border-b border-borderSubtle">Role</th>
+                    <th class="px-6 py-3 border-b border-borderSubtle">Joined</th>
+                    <th class="px-6 py-3 border-b border-borderSubtle text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="members-table-body" class="divide-y divide-borderSubtle">
+                <!-- Data inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pending Invitations -->
+    <h3 class="text-lg font-bold text-textMain mb-4">Pending Invitations</h3>
+    <div class="bg-white rounded-xl shadow-sm border border-borderSubtle overflow-hidden">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-surfaceHover text-xs font-semibold text-textMuted uppercase tracking-wider">
+                    <th class="px-6 py-3 border-b border-borderSubtle">Invited Email</th>
+                    <th class="px-6 py-3 border-b border-borderSubtle">Role</th>
+                    <th class="px-6 py-3 border-b border-borderSubtle">Invited By</th>
+                    <th class="px-6 py-3 border-b border-borderSubtle">Status</th>
+                    <th class="px-6 py-3 border-b border-borderSubtle text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="invites-table-body" class="divide-y divide-borderSubtle">
+                <!-- Data inserted here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Invite Member Modal -->
+<div id="modal-invite-member" class="fixed inset-0 z-[60] flex items-center justify-center hidden">
+    <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onclick="this.parentElement.classList.add('hidden')">
+    </div>
+    <div class="bg-white rounded-xl shadow-premium w-full max-w-md mx-4 relative z-10 p-6">
+        <h3 class="text-lg font-bold text-textMain mb-4">Invite to Workspace</h3>
+        <form id="form-invite-member" class="space-y-4">
+            <div>
+                <label class="block text-sm font-semibold text-textMain mb-1.5">Email Address</label>
+                <input type="email" id="invite-email" required placeholder="colleague@company.com"
+                    class="w-full px-4 py-2 bg-surfaceHover border border-borderSubtle rounded-lg focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-textMain mb-1.5">Role</label>
+                <select id="invite-role"
+                    class="w-full px-4 py-2 bg-surfaceHover border border-borderSubtle rounded-lg focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm">
+                    <option value="member">Member</option>
+                    <option value="manager">Manager</option>
+                </select>
+                <p class="text-xs text-textMuted mt-2 leading-relaxed">Managers can invite others and modify workspace
+                    settings. Members can only interact with spaces and tasks.</p>
+            </div>
+
+            <div id="invite-link-container" class="hidden mt-4 pt-4 border-t border-borderSubtle">
+                <label class="block text-sm font-semibold text-textMain mb-1.5">Share this link directly:</label>
+                <div class="flex gap-2">
+                    <input type="text" id="invite-link-input" readonly
+                        class="w-full px-3 py-1.5 bg-gray-50 border border-borderSubtle rounded-md text-xs text-textMuted font-mono">
+                    <button type="button" onclick="copyInviteLink()"
+                        class="px-3 py-1.5 bg-surfaceHover border border-borderSubtle rounded-md text-xs font-medium hover:bg-gray-100 transition-colors">Copy</button>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4 border-t border-borderSubtle">
+                <button type="button" class="px-4 py-2 text-sm font-medium hover:bg-surfaceHover rounded-lg"
+                    onclick="document.getElementById('modal-invite-member').classList.add('hidden')">Close</button>
+                <button type="submit" id="btn-submit-invite"
+                    class="bg-primary hover:bg-primaryHover text-white px-4 py-2 rounded-lg text-sm font-medium">Send
+                    Invite</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const pathParts = window.location.pathname.split('/').filter(Boolean);
+    const wsId = pathParts[1];
+
+    document.getElementById('btn-settings-tab').onclick = () => {
+        window.location.href = `/workspaces/${wsId}/`;
+    };
+
+    function copyInviteLink() {
+        const input = document.getElementById('invite-link-input');
+        input.select();
+        document.execCommand('copy');
+        showToast('Link copied to clipboard');
+    }
+
+    async function loadMembersAndInvites() {
+        try {
+            // Fetch workspace members
+            const res = await fetchWithAuth(`/workspaces/${wsId}/`);
+            if (res.ok) {
+                const ws = await res.json();
+                document.getElementById('ws-title').innerText = ws.name + ' Members';
+                renderMembers(ws.memberships);
+            }
+
+            // Fetch pending invitations
+            const invRes = await fetchWithAuth(`/invitations/?workspace=${wsId}&accepted=false`);
+            if (invRes.ok) {
+                const invData = await invRes.json();
+                renderInvites(invData.results || invData);
+            }
+        } catch (e) { }
+    }
+
+    function renderMembers(members) {
+        const tbody = document.getElementById('members-table-body');
+        let html = '';
+        members.forEach(m => {
+            const date = new Date(m.joined_at).toLocaleDateString();
+            const roleBadge = m.role === 'owner' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700';
+            html += `
+                <tr class="hover:bg-surfaceHover transition-colors">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            <div class="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold text-xs uppercase mr-3">
+                                ${(m.user_name || m.user_email).charAt(0)}
+                            </div>
+                            <div class="text-sm font-medium text-textMain">${m.user_name || m.user_email}</div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2.5 py-1 text-xs font-medium rounded-full capitalize ${roleBadge}">${m.role}</span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-textMuted">${date}</td>
+                    <td class="px-6 py-4 text-right">
+                        ${m.role !== 'owner' ? `<button onclick="removeMember('${m.id}')" class="text-xs text-red-500 font-medium hover:text-red-700">Remove</button>` : ''}
+                    </td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    }
+
+    function renderInvites(invites) {
+        const tbody = document.getElementById('invites-table-body');
+        if (invites.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-6 text-center text-sm text-textMuted italic">No pending invitations</td></tr>`;
+            return;
+        }
+        let html = '';
+        invites.forEach(inv => {
+            const statusBadge = inv.is_expired ? '<span class="text-red-500 font-medium text-xs">Expired</span>' : '<span class="text-orange-500 font-medium text-xs">Pending</span>';
+            html += `
+                <tr class="hover:bg-surfaceHover transition-colors">
+                    <td class="px-6 py-4 text-sm font-medium text-textMain">${inv.invited_email}</td>
+                    <td class="px-6 py-4 text-sm text-textMuted capitalize">${inv.role}</td>
+                    <td class="px-6 py-4 text-sm text-textMuted">${inv.invited_by_username}</td>
+                    <td class="px-6 py-4">${statusBadge}</td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end gap-3 text-xs font-medium">
+                            ${!inv.is_expired ? `<button onclick="showInviteLink('${inv.invite_link}')" class="text-primary hover:text-primaryHover">Copy Link</button>` : ''}
+                            <button onclick="revokeInvite('${inv.id}')" class="text-red-500 hover:text-red-700">Revoke</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    }
+
+    function showInviteLink(link) {
+        // reuse the modal but don't show the form logic, just the link snippet
+        document.getElementById('modal-invite-member').classList.remove('hidden');
+        document.getElementById('invite-link-container').classList.remove('hidden');
+        document.getElementById('invite-link-input').value = link;
+        copyInviteLink();
+    }
+
+    async function removeMember(id) {
+        if (!confirm('Remove this member?')) return;
+        try {
+            await fetchWithAuth(`/add/members/${id}/`, { method: 'DELETE' });
+            loadMembersAndInvites();
+        } catch (e) { }
+    }
+
+    async function revokeInvite(id) {
+        if (!confirm('Revoke invitation?')) return;
+        try {
+            await fetchWithAuth(`/invitations/${id}/`, { method: 'DELETE' });
+            loadMembersAndInvites();
+            document.getElementById('invite-link-container').classList.add('hidden');
+        } catch (e) { }
+    }
+
+    document.getElementById('form-invite-member').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btn-submit-invite');
+        btn.disabled = true;
+        btn.innerHTML = 'Sending...';
+
+        try {
+            const res = await fetchWithAuth(`/invitations/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    workspace: wsId,
+                    invited_email: document.getElementById('invite-email').value,
+                    role: document.getElementById('invite-role').value
+                })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                showToast('Invitation created successfully');
+                document.getElementById('invite-link-container').classList.remove('hidden');
+                document.getElementById('invite-link-input').value = data.invite_link;
+                loadMembersAndInvites();
+            } else {
+                const err = await res.json();
+                showToast(err.detail || 'Failed to create invite', 'error');
+            }
+        } catch (e) {
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Send Invite';
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', loadMembersAndInvites);
+</script>
+{% endblock %}

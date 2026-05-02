@@ -1,12 +1,14 @@
 from django.db import models
+from django.utils import timezone
 from rest_framework import viewsets, status
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
-from workspace.models import WorkSpace, WorkSpaceMember
-from workspace.serializers import WorkspaceSerializer, AddMemberSerializer
+from workspace.models import WorkSpace, WorkSpaceMember, WorkspaceInvitation
+from workspace.serializers import WorkspaceSerializer, AddMemberSerializer, WorkspaceInvitationSerializer
 from workspace.permissions import IsWorkspaceOwner, IsWorkspaceManager
 
 
@@ -133,3 +135,63 @@ class AddMemberToWorkspaceView(viewsets.ModelViewSet):
             )
 
         instance.delete()
+
+
+class WorkspaceInvitationViewSet(viewsets.ModelViewSet):
+    """Create and manage workspace invitations."""
+    serializer_class = WorkspaceInvitationSerializer
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['get', 'post', 'delete', 'head', 'options']
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['workspace', 'accepted']
+
+    def get_queryset(self):
+        user = self.request.user
+        return WorkspaceInvitation.objects.filter(
+            workspace__memberships__user=user,
+            workspace__memberships__role__in=['owner', 'manager']
+        ).distinct()
+
+    def perform_create(self, serializer):
+        workspace = serializer.validated_data['workspace']
+        member = WorkSpaceMember.objects.filter(
+            workspace=workspace, user=self.request.user
+        ).first()
+        if not (member and member.role in ['owner', 'manager']) and workspace.created_by != self.request.user:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Only workspace owners/managers can send invitations.")
+        serializer.save(invited_by=self.request.user)
+
+    @action(detail=False, methods=['get'], url_path='accept/(?P<token>[^/.]+)', permission_classes=[AllowAny])
+    def accept(self, request, token=None):
+        """Accept a workspace invitation via token."""
+        try:
+            invitation = WorkspaceInvitation.objects.get(token=token)
+        except WorkspaceInvitation.DoesNotExist:
+            return Response({'detail': 'Invalid invitation link.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if invitation.accepted:
+            return Response({'detail': 'This invitation has already been accepted.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if invitation.is_expired:
+            return Response({'detail': 'This invitation has expired.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not request.user.is_authenticated:
+            return Response({'detail': 'You must be logged in to accept an invitation.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        if WorkSpaceMember.objects.filter(workspace=invitation.workspace, user=request.user).exists():
+            return Response({'detail': 'You are already a member of this workspace.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        WorkSpaceMember.objects.create(
+            workspace=invitation.workspace,
+            user=request.user,
+            role=invitation.role,
+            created_by=invitation.invited_by,
+        )
+        invitation.accepted = True
+        invitation.save()
+
+        return Response({
+            'detail': f'You have successfully joined "{invitation.workspace.name}" as {invitation.role}.',
+            'workspace_id': str(invitation.workspace.id),
+        }, status=status.HTTP_200_OK)

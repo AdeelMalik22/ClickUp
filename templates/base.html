@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- SortableJS for Drag and Drop -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-    
+
     <script>
         tailwind.config = {
             theme: {
@@ -41,44 +42,95 @@
         }
     </script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #FAFBFC; color: #292D34; }
-        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FAFBFC;
+            color: #292D34;
+        }
+
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
 
         /* Smooth slide-over animations */
-        .slide-enter { transform: translateX(100%); }
-        .slide-enter-active { transform: translateX(0); transition: transform 300ms ease-out; }
-        .slide-exit { transform: translateX(0); }
-        .slide-exit-active { transform: translateX(100%); transition: transform 300ms ease-in; }
+        .slide-enter {
+            transform: translateX(100%);
+        }
+
+        .slide-enter-active {
+            transform: translateX(0);
+            transition: transform 300ms ease-out;
+        }
+
+        .slide-exit {
+            transform: translateX(0);
+        }
+
+        .slide-exit-active {
+            transform: translateX(100%);
+            transition: transform 300ms ease-in;
+        }
 
         /* Toast animations */
-        .toast-enter { transform: translateY(100%); opacity: 0; }
-        .toast-enter-active { transform: translateY(0); opacity: 1; transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1); }
+        .toast-enter {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+
+        .toast-enter-active {
+            transform: translateY(0);
+            opacity: 1;
+            transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
     </style>
-    
+
     <script>
         // Global Auth & UI Handlers
-        const apiBase = ''; 
+        const apiBase = '/api';
 
         function getAuthToken() { return localStorage.getItem('access_token'); }
         function setAuthToken(access, refresh) {
             localStorage.setItem('access_token', access);
-            if(refresh) localStorage.setItem('refresh_token', refresh);
+            if (refresh) localStorage.setItem('refresh_token', refresh);
         }
         function clearAuth() {
             localStorage.removeItem('access_token');
             localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user');
+        }
+
+        function getAuthUser() {
+            const u = localStorage.getItem('user');
+            return u ? JSON.parse(u) : null;
+        }
+
+        function setAuthUser(user) {
+            localStorage.setItem('user', JSON.stringify(user));
         }
 
         async function fetchWithAuth(url, options = {}) {
+            if (url.startsWith('/') && !url.startsWith('/api/')) {
+                url = apiBase + url;
+            }
             const token = getAuthToken();
             if (!options.headers) options.headers = {};
             if (token) options.headers['Authorization'] = `Bearer ${token}`;
-            
+
             const response = await fetch(url, options);
             if (response.status === 401 && token) {
                 clearAuth();
@@ -91,21 +143,21 @@
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            
+
             const colors = {
                 success: 'bg-green-500',
                 error: 'bg-red-500',
                 info: 'bg-blue-500'
             };
-            const icon = type === 'success' ? `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>` : 
-                         type === 'error' ? `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>` : 
-                         `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+            const icon = type === 'success' ? `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>` :
+                type === 'error' ? `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>` :
+                    `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
 
             toast.className = `flex items-center gap-3 text-white px-4 py-3 rounded-lg shadow-floating toast-enter ${colors[type] || colors.info}`;
             toast.innerHTML = `<div>${icon}</div><div class="text-sm font-medium">${message}</div>`;
-            
+
             container.appendChild(toast);
-            
+
             // Trigger animation
             requestAnimationFrame(() => {
                 toast.classList.remove('toast-enter');
@@ -122,7 +174,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             const publicPages = ['/', '/register/'];
             const path = window.location.pathname;
-            
+
             if (!publicPages.includes(path) && !getAuthToken()) {
                 window.location.href = '/';
             } else if (publicPages.includes(path) && getAuthToken()) {
@@ -132,11 +184,13 @@
     </script>
     {% block extra_head %}{% endblock %}
 </head>
+
 <body class="flex flex-col h-screen overflow-hidden">
     <!-- Global Toast Container -->
     <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"></div>
-    
+
     {% block body %}
     {% endblock %}
 </body>
+
 </html>

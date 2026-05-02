@@ -6,7 +6,9 @@
 <div class="flex flex-col">
     <div class="flex items-center gap-2 text-xs text-textMuted font-medium mb-0.5">
         <span id="breadcrumb-ws">Workspace</span>
-        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
         <span class="text-primary">Projects</span>
     </div>
     <div class="flex items-center gap-2">
@@ -18,28 +20,51 @@
 
 {% block content %}
 <div class="flex flex-col h-full overflow-hidden relative">
-    
+
     <!-- View Tabs -->
     <div class="border-b border-borderSubtle bg-white px-6 flex items-center gap-6 shrink-0 z-10 sticky top-0">
-        <button id="tab-list" class="py-3 px-1 border-b-2 border-primary text-primary font-semibold text-sm transition-colors flex items-center gap-2" onclick="switchView('list')">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+        <button id="tab-list"
+            class="py-3 px-1 border-b-2 border-primary text-primary font-semibold text-sm transition-colors flex items-center gap-2"
+            onclick="switchView('list')">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+            </svg>
             List
         </button>
-        <button id="tab-board" class="py-3 px-1 border-b-2 border-transparent text-textMuted hover:text-textMain font-medium text-sm transition-colors flex items-center gap-2" onclick="switchView('board')">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"></path></svg>
+        <button id="tab-board"
+            class="py-3 px-1 border-b-2 border-transparent text-textMuted hover:text-textMain font-medium text-sm transition-colors flex items-center gap-2"
+            onclick="switchView('board')">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2">
+                </path>
+            </svg>
             Board
         </button>
-        <button id="tab-table" class="py-3 px-1 border-b-2 border-transparent text-textMuted hover:text-textMain font-medium text-sm transition-colors flex items-center gap-2" onclick="switchView('table')">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+        <button id="tab-table"
+            class="py-3 px-1 border-b-2 border-transparent text-textMuted hover:text-textMain font-medium text-sm transition-colors flex items-center gap-2"
+            onclick="switchView('table')">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+            </svg>
             Table
         </button>
-        <button id="tab-calendar" class="py-3 px-1 border-b-2 border-transparent text-textMuted hover:text-textMain font-medium text-sm transition-colors flex items-center gap-2" onclick="switchView('calendar')">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        <button id="tab-calendar"
+            class="py-3 px-1 border-b-2 border-transparent text-textMuted hover:text-textMain font-medium text-sm transition-colors flex items-center gap-2"
+            onclick="switchView('calendar')">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
             Calendar
         </button>
-        
+
         <div class="ml-auto flex items-center gap-2 py-2">
-            <button class="bg-primary/10 text-primary hover:bg-primary/20 font-medium px-3 py-1.5 rounded text-sm transition-colors" onclick="openCreateTaskModal(projectId)">
+            <button
+                class="bg-primary/10 text-primary hover:bg-primary/20 font-medium px-3 py-1.5 rounded text-sm transition-colors"
+                onclick="openCreateTaskModal(projectId)">
                 + New Task
             </button>
         </div>
@@ -47,7 +72,7 @@
 
     <!-- Scrollable Content Area -->
     <div class="flex-1 overflow-auto bg-surface p-6">
-        
+
         <!-- List View -->
         <div id="view-list" class="w-full max-w-6xl mx-auto space-y-8 pb-10">
             <!-- Dynamic Groups (by status) will go here -->
@@ -59,7 +84,8 @@
         </div>
 
         <!-- Table View -->
-        <div id="view-table" class="hidden w-full bg-white border border-borderSubtle rounded-lg overflow-hidden flex flex-col shadow-sm">
+        <div id="view-table"
+            class="hidden w-full bg-white border border-borderSubtle rounded-lg overflow-hidden flex flex-col shadow-sm">
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm text-textMain border-collapse">
                     <thead class="bg-surfaceHover text-xs text-textMuted uppercase border-b border-borderSubtle">
@@ -80,23 +106,33 @@
         </div>
 
         <!-- Calendar View -->
-        <div id="view-calendar" class="hidden w-full h-full bg-white border border-borderSubtle rounded-lg flex flex-col shadow-sm">
+        <div id="view-calendar"
+            class="hidden w-full h-full bg-white border border-borderSubtle rounded-lg flex flex-col shadow-sm">
             <!-- Calendar Header -->
             <div class="flex items-center justify-between p-4 border-b border-borderSubtle">
                 <div class="flex items-center gap-4">
                     <h2 id="calendar-month-year" class="text-lg font-bold text-textMain">May 2026</h2>
                     <div class="flex items-center border border-borderSubtle rounded-md overflow-hidden">
-                        <button onclick="changeCalendarMonth(-1)" class="px-2 py-1 bg-surface hover:bg-surfaceHover text-textMain transition-colors border-r border-borderSubtle">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        <button onclick="changeCalendarMonth(-1)"
+                            class="px-2 py-1 bg-surface hover:bg-surfaceHover text-textMain transition-colors border-r border-borderSubtle">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 19l-7-7 7-7"></path>
+                            </svg>
                         </button>
-                        <button onclick="changeCalendarMonth(1)" class="px-2 py-1 bg-surface hover:bg-surfaceHover text-textMain transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        <button onclick="changeCalendarMonth(1)"
+                            class="px-2 py-1 bg-surface hover:bg-surfaceHover text-textMain transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
                         </button>
                     </div>
-                    <button onclick="resetCalendar()" class="px-3 py-1 text-sm font-medium text-textMain bg-surface border border-borderSubtle rounded-md hover:bg-surfaceHover transition-colors shadow-sm">Today</button>
+                    <button onclick="resetCalendar()"
+                        class="px-3 py-1 text-sm font-medium text-textMain bg-surface border border-borderSubtle rounded-md hover:bg-surfaceHover transition-colors shadow-sm">Today</button>
                 </div>
             </div>
-            
+
             <!-- Calendar Grid -->
             <div class="flex-1 flex flex-col overflow-hidden bg-borderSubtle gap-[1px]">
                 <!-- Days of week -->
@@ -124,7 +160,8 @@
     <div class="flex flex-col h-full">
         <div class="flex items-center justify-between p-4 border-b border-borderSubtle bg-white shrink-0">
             <div class="flex items-center gap-2">
-                <select id="modal-status-select" class="text-xs font-bold uppercase tracking-wide px-2 py-1.5 rounded cursor-pointer outline-none appearance-none bg-surfaceHover border border-borderSubtle hover:bg-gray-100 transition-colors">
+                <select id="modal-status-select"
+                    class="text-xs font-bold uppercase tracking-wide px-2 py-1.5 rounded cursor-pointer outline-none appearance-none bg-surfaceHover border border-borderSubtle hover:bg-gray-100 transition-colors">
                     <option value="todo">To Do</option>
                     <option value="in_progress">In Progress</option>
                     <option value="review">Review</option>
@@ -135,11 +172,14 @@
             </div>
             <div class="flex items-center gap-2">
                 <button class="text-textMuted hover:text-textMain p-1" onclick="closeTaskPanel()">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
                 </button>
             </div>
         </div>
-        
+
         <div class="flex-1 overflow-y-auto p-6 bg-white flex flex-col gap-8">
             <!-- Header -->
             <div>
@@ -149,33 +189,41 @@
                         <div>
                             <p class="text-xs text-textMuted font-medium mb-1 uppercase tracking-wide">Assignee</p>
                             <div class="flex items-center gap-2 mt-1">
-                                <select id="modal-assignee-select" class="w-full text-sm px-2 py-1.5 rounded border border-borderSubtle bg-white focus:outline-none focus:ring-1 focus:ring-primary">
+                                <select id="modal-assignee-select"
+                                    class="w-full text-sm px-2 py-1.5 rounded border border-borderSubtle bg-white focus:outline-none focus:ring-1 focus:ring-primary">
                                     <option value="">Unassigned</option>
                                 </select>
-                                <button type="button" id="btn-assign-task" class="px-3 py-1.5 rounded bg-primary hover:bg-primaryHover text-white text-sm font-medium transition-colors">Assign</button>
+                                <button type="button" id="btn-assign-task"
+                                    class="px-3 py-1.5 rounded bg-primary hover:bg-primaryHover text-white text-sm font-medium transition-colors">Assign</button>
                             </div>
                             <p id="modal-assignee" class="mt-2 text-xs text-textMuted">Unassigned</p>
                         </div>
 
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <p class="text-xs text-textMuted font-medium mb-1 uppercase tracking-wide">Start date</p>
-                                <input id="modal-start-date" type="date" class="w-full px-3 py-2 rounded border border-borderSubtle bg-white text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+                                <p class="text-xs text-textMuted font-medium mb-1 uppercase tracking-wide">Start date
+                                </p>
+                                <input id="modal-start-date" type="date"
+                                    class="w-full px-3 py-2 rounded border border-borderSubtle bg-white text-sm focus:outline-none focus:ring-1 focus:ring-primary">
                             </div>
                             <div>
                                 <p class="text-xs text-textMuted font-medium mb-1 uppercase tracking-wide">Due date</p>
-                                <input id="modal-due-date" type="date" class="w-full px-3 py-2 rounded border border-borderSubtle bg-white text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+                                <input id="modal-due-date" type="date"
+                                    class="w-full px-3 py-2 rounded border border-borderSubtle bg-white text-sm focus:outline-none focus:ring-1 focus:ring-primary">
                             </div>
                         </div>
 
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <p class="text-xs text-textMuted font-medium mb-1 uppercase tracking-wide">Time estimate</p>
-                                <input id="modal-time-estimate" type="number" min="0" step="1" placeholder="Minutes" class="w-full px-3 py-2 rounded border border-borderSubtle bg-white text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+                                <p class="text-xs text-textMuted font-medium mb-1 uppercase tracking-wide">Time estimate
+                                </p>
+                                <input id="modal-time-estimate" type="number" min="0" step="1" placeholder="Minutes"
+                                    class="w-full px-3 py-2 rounded border border-borderSubtle bg-white text-sm focus:outline-none focus:ring-1 focus:ring-primary">
                             </div>
                             <div>
                                 <p class="text-xs text-textMuted font-medium mb-1 uppercase tracking-wide">Tags</p>
-                                <input id="modal-tags-input" type="text" placeholder="marketing, frontend" class="w-full px-3 py-2 rounded border border-borderSubtle bg-white text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+                                <input id="modal-tags-input" type="text" placeholder="marketing, frontend"
+                                    class="w-full px-3 py-2 rounded border border-borderSubtle bg-white text-sm focus:outline-none focus:ring-1 focus:ring-primary">
                             </div>
                         </div>
                     </div>
@@ -183,7 +231,8 @@
                     <div class="space-y-4">
                         <div>
                             <p class="text-xs text-textMuted font-medium mb-1 uppercase tracking-wide">Priority</p>
-                            <select id="modal-priority-select" class="text-xs font-bold uppercase tracking-wide px-2 py-1.5 rounded cursor-pointer outline-none appearance-none bg-surfaceHover border border-borderSubtle hover:bg-gray-100 transition-colors w-full sm:w-auto">
+                            <select id="modal-priority-select"
+                                class="text-xs font-bold uppercase tracking-wide px-2 py-1.5 rounded cursor-pointer outline-none appearance-none bg-surfaceHover border border-borderSubtle hover:bg-gray-100 transition-colors w-full sm:w-auto">
                                 <option value="low">Low</option>
                                 <option value="medium">Medium</option>
                                 <option value="high">High</option>
@@ -192,39 +241,78 @@
                         </div>
                         <div class="rounded-lg border border-borderSubtle bg-white p-3 space-y-2">
                             <p class="text-xs font-semibold uppercase tracking-wide text-textMuted">Quick actions</p>
-                            <button type="button" class="w-full text-left px-3 py-2 rounded hover:bg-surfaceHover text-sm" id="btn-add-subtask" onclick="handleAddSubtask()">+ Add subtask</button>
-                            <button type="button" class="w-full text-left px-3 py-2 rounded hover:bg-surfaceHover text-sm" id="btn-create-checklist" onclick="handleCreateChecklist()">Create checklist</button>
-                            <button type="button" class="w-full text-left px-3 py-2 rounded hover:bg-surfaceHover text-sm" id="btn-attach-file" onclick="handleAttachFile()">Attach file</button>
-                            <button type="button" class="w-full text-left px-3 py-2 rounded hover:bg-surfaceHover text-sm" id="btn-dependencies" onclick="handleDependencies()">Relate items or add dependencies</button>
+                            <button type="button"
+                                class="w-full text-left px-3 py-2 rounded hover:bg-surfaceHover text-sm"
+                                id="btn-add-subtask" onclick="handleAddSubtask()">+ Add subtask</button>
+                            <button type="button"
+                                class="w-full text-left px-3 py-2 rounded hover:bg-surfaceHover text-sm"
+                                id="btn-create-checklist" onclick="handleCreateChecklist()">Create checklist</button>
+                            <button type="button"
+                                class="w-full text-left px-3 py-2 rounded hover:bg-surfaceHover text-sm"
+                                id="btn-attach-file" onclick="handleAttachFile()">Attach file</button>
+                            <button type="button"
+                                class="w-full text-left px-3 py-2 rounded hover:bg-surfaceHover text-sm"
+                                id="btn-dependencies" onclick="handleDependencies()">Relate items or add
+                                dependencies</button>
                         </div>
                         <div class="rounded-lg border border-borderSubtle bg-white p-3">
                             <p class="text-xs font-semibold uppercase tracking-wide text-textMuted mb-2">Track time</p>
-                            <button type="button" class="px-3 py-1.5 rounded bg-surfaceHover hover:bg-gray-100 text-sm font-medium" id="btn-track-time" onclick="handleTrackTime()">Start</button>
+                            <button type="button"
+                                class="px-3 py-1.5 rounded bg-surfaceHover hover:bg-gray-100 text-sm font-medium"
+                                id="btn-track-time" onclick="handleTrackTime()">Start</button>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Description -->
             <div>
                 <div class="flex items-center justify-between mb-2">
                     <h3 class="text-sm font-bold text-textMain uppercase tracking-wide">Description</h3>
-                    <button id="btn-save-task-details" type="button" class="px-3 py-1.5 rounded bg-primary hover:bg-primaryHover text-white text-sm font-medium transition-colors">Save details</button>
+                    <button id="btn-save-task-details" type="button"
+                        class="px-3 py-1.5 rounded bg-primary hover:bg-primaryHover text-white text-sm font-medium transition-colors">Save
+                        details</button>
                 </div>
-                <textarea id="modal-description-input" rows="6" class="w-full text-sm text-textMain whitespace-pre-wrap p-4 border border-borderSubtle rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary resize-none" placeholder="Add description, or write with AI"></textarea>
+                <textarea id="modal-description-input" rows="6"
+                    class="w-full text-sm text-textMain whitespace-pre-wrap p-4 border border-borderSubtle rounded-lg bg-white focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+                    placeholder="Add description, or write with AI"></textarea>
             </div>
-            
+
+            <!-- Checklists -->
+            <div id="checklists-container" class="space-y-6">
+                <!-- Checklists injected here -->
+            </div>
+
+            <!-- Attachments -->
+            <div>
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-bold text-textMain uppercase tracking-wide">Attachments</h3>
+                    <button onclick="document.getElementById('attachment-file-input').click()"
+                        class="text-xs font-semibold text-primary hover:text-primaryHover transition-colors">+
+                        Add</button>
+                    <input type="file" id="attachment-file-input" class="hidden" multiple>
+                </div>
+                <div id="attachments-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                    <!-- Attachments injected here -->
+                </div>
+            </div>
+
             <!-- Comments -->
             <div class="flex-1 flex flex-col">
                 <h3 class="text-sm font-bold text-textMain mb-4 uppercase tracking-wide">Activity & Comments</h3>
                 <div class="flex-1 overflow-y-auto space-y-4 mb-4" id="modal-comments">
                     <p class="text-sm text-textMuted italic">Loading comments...</p>
                 </div>
-                
-                <div class="mt-auto border border-borderSubtle rounded-lg focus-within:ring-1 focus-within:ring-primary focus-within:border-primary transition-all p-2 bg-surfaceHover">
-                    <textarea id="comment-input" rows="2" class="w-full bg-transparent outline-none text-sm p-2 resize-none" placeholder="Write a comment..."></textarea>
+
+                <div
+                    class="mt-auto border border-borderSubtle rounded-lg focus-within:ring-1 focus-within:ring-primary focus-within:border-primary transition-all p-2 bg-surfaceHover">
+                    <textarea id="comment-input" rows="2"
+                        class="w-full bg-transparent outline-none text-sm p-2 resize-none"
+                        placeholder="Write a comment..."></textarea>
                     <div class="flex justify-end mt-2">
-                        <button class="bg-primary hover:bg-primaryHover text-white px-3 py-1.5 rounded text-sm font-medium transition-colors" id="btn-post-comment">Comment</button>
+                        <button
+                            class="bg-primary hover:bg-primaryHover text-white px-3 py-1.5 rounded text-sm font-medium transition-colors"
+                            id="btn-post-comment">Comment</button>
                     </div>
                 </div>
             </div>
@@ -326,15 +414,15 @@
                 currentProject = await res.json();
                 document.getElementById('project-title').innerText = currentProject.name;
                 // Try to set workspace name if available via sidebar
-                if(window.currentWorkspace) {
+                if (window.currentWorkspace) {
                     document.getElementById('breadcrumb-ws').innerText = window.currentWorkspace.name;
                 }
-                
+
                 fetchTasks();
             } else {
                 showToast('Failed to load project details.', 'error');
             }
-        } catch(e) {
+        } catch (e) {
             console.error(e);
         }
     }
@@ -350,7 +438,7 @@
                 renderTableView();
                 renderCalendarView();
             }
-        } catch(e) {
+        } catch (e) {
             console.error(e);
         }
     }
@@ -358,15 +446,15 @@
     function renderListView() {
         const container = document.getElementById('view-list');
         container.innerHTML = '';
-        
+
         // Group tasks by status
         Object.keys(STATUSES).forEach(statusKey => {
             const statusTasks = tasks.filter(t => t.status === statusKey);
             if (statusTasks.length === 0 && statusKey !== 'todo' && statusKey !== 'in_progress' && statusKey !== 'completed') return;
-            
+
             const group = document.createElement('div');
             group.className = 'bg-white rounded-lg border border-borderSubtle overflow-hidden shadow-sm';
-            
+
             const header = document.createElement('div');
             header.className = `px-4 py-2 border-b border-borderSubtle bg-surfaceHover flex items-center gap-3`;
             header.innerHTML = `
@@ -374,17 +462,17 @@
                 <span class="text-xs text-textMuted font-medium">${statusTasks.length} tasks</span>
             `;
             group.appendChild(header);
-            
+
             if (statusTasks.length === 0) {
                 group.innerHTML += `<div class="p-4 text-sm text-textMuted italic text-center border-b border-borderSubtle last:border-b-0">No tasks in this status</div>`;
             } else {
                 statusTasks.forEach(task => {
-                    const priority = PRIORITIES[task.priority] || {label: 'Normal', badge: 'bg-gray-100 text-gray-700'};
-                    
+                    const priority = PRIORITIES[task.priority] || { label: 'Normal', badge: 'bg-gray-100 text-gray-700' };
+
                     const row = document.createElement('div');
                     row.className = 'flex items-center p-3 border-b border-borderSubtle last:border-b-0 hover:bg-surfaceHover transition-colors cursor-pointer group';
                     row.onclick = () => openTaskPanel(task.id);
-                    
+
                     row.innerHTML = `
                         <div class="flex-1 flex items-center gap-3 min-w-0">
                             <div class="w-4 h-4 rounded border border-gray-300 group-hover:border-primary shrink-0 transition-colors"></div>
@@ -403,7 +491,7 @@
                     group.appendChild(row);
                 });
             }
-            
+
             container.appendChild(group);
         });
     }
@@ -411,12 +499,12 @@
     function renderBoardView() {
         const container = document.getElementById('view-board');
         container.innerHTML = '';
-        
+
         // Render core columns
         ['todo', 'in_progress', 'review', 'completed'].forEach(statusKey => {
             const statusTasks = tasks.filter(t => t.status === statusKey);
             const statusDef = STATUSES[statusKey];
-            
+
             const col = document.createElement('div');
             col.className = 'w-[300px] shrink-0 flex flex-col h-full';
             col.innerHTML = `
@@ -429,8 +517,8 @@
                 </div>
                 <div class="flex-1 bg-surfaceHover rounded-lg p-2 overflow-y-auto space-y-2 border border-borderSubtle" id="board-col-${statusKey}" data-status="${statusKey}">
                     ${statusTasks.map(t => {
-                        const prio = PRIORITIES[t.priority] || {label: 'Normal', badge: 'bg-gray-100 text-gray-700'};
-                        return `
+                const prio = PRIORITIES[t.priority] || { label: 'Normal', badge: 'bg-gray-100 text-gray-700' };
+                return `
                             <div class="bg-white p-3 rounded shadow-sm border border-borderSubtle cursor-grab hover:shadow-md transition-shadow" data-id="${t.id}" onclick="openTaskPanel(${t.id})">
                                 <div class="flex justify-between items-start mb-2">
                                     <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide ${prio.badge}">${prio.label}</span>
@@ -442,7 +530,7 @@
                                 </div>
                             </div>
                         `;
-                    }).join('')}
+            }).join('')}
                 </div>
             `;
             container.appendChild(col);
@@ -452,7 +540,7 @@
         if (typeof Sortable !== 'undefined') {
             ['todo', 'in_progress', 'review', 'completed'].forEach(statusKey => {
                 const el = document.getElementById(`board-col-${statusKey}`);
-                if(el) {
+                if (el) {
                     new Sortable(el, {
                         group: 'kanban',
                         animation: 150,
@@ -461,11 +549,11 @@
                             const itemEl = evt.item;  // dragged HTMLElement
                             const toEl = evt.to;      // target list
                             const fromEl = evt.from;
-                            
+
                             if (toEl !== fromEl) {
                                 const newStatus = toEl.getAttribute('data-status');
                                 const taskId = itemEl.getAttribute('data-id');
-                                
+
                                 // Call API to update status
                                 try {
                                     const res = await fetchWithAuth(`/tasks/update_status/${taskId}/`, {
@@ -473,7 +561,7 @@
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify({ status: newStatus })
                                     });
-                                    if(res.ok) {
+                                    if (res.ok) {
                                         showToast(`Task status updated to ${STATUSES[newStatus].label}`);
                                         // Refetch to ensure sync
                                         fetchTasks();
@@ -481,7 +569,7 @@
                                         showToast('Failed to update status', 'error');
                                         fetchTasks(); // revert DOM
                                     }
-                                } catch(e) {
+                                } catch (e) {
                                     showToast('Network error updating status', 'error');
                                     fetchTasks(); // revert DOM
                                 }
@@ -495,22 +583,22 @@
 
     function renderTableView() {
         const tbody = document.getElementById('table-body');
-        if(!tbody) return;
+        if (!tbody) return;
         tbody.innerHTML = '';
-        
+
         if (tasks.length === 0) {
             tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-textMuted italic">No tasks found</td></tr>`;
             return;
         }
-        
+
         tasks.forEach((task, index) => {
-            const statusDef = STATUSES[task.status] || {label: 'Unknown', color: 'bg-gray-100 text-gray-700'};
-            const prio = PRIORITIES[task.priority] || {label: 'Normal', badge: 'bg-gray-100 text-gray-700'};
-            
+            const statusDef = STATUSES[task.status] || { label: 'Unknown', color: 'bg-gray-100 text-gray-700' };
+            const prio = PRIORITIES[task.priority] || { label: 'Normal', badge: 'bg-gray-100 text-gray-700' };
+
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-surfaceHover transition-colors cursor-pointer group';
             tr.onclick = () => openTaskPanel(task.id);
-            
+
             tr.innerHTML = `
                 <td class="px-4 py-3 border-r border-borderSubtle text-textMuted text-xs text-center">${index + 1}</td>
                 <td class="px-4 py-3 border-r border-borderSubtle font-medium group-hover:text-primary transition-colors">${task.title}</td>
@@ -534,12 +622,12 @@
     }
 
     let currentCalendarDate = new Date();
-    
+
     function changeCalendarMonth(offset) {
         currentCalendarDate.setMonth(currentCalendarDate.getMonth() + offset);
         renderCalendarView();
     }
-    
+
     function resetCalendar() {
         currentCalendarDate = new Date();
         renderCalendarView();
@@ -548,18 +636,18 @@
     function renderCalendarView() {
         const grid = document.getElementById('calendar-grid');
         if (!grid) return;
-        
+
         const year = currentCalendarDate.getFullYear();
         const month = currentCalendarDate.getMonth();
-        
+
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         document.getElementById('calendar-month-year').innerText = `${monthNames[month]} ${year}`;
-        
+
         grid.innerHTML = '';
-        
+
         const firstDay = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
-        
+
         // Group tasks by date (using created_at for demonstration)
         const tasksByDate = {};
         tasks.forEach(task => {
@@ -570,22 +658,22 @@
                 tasksByDate[day].push(task);
             }
         });
-        
+
         const today = new Date();
         const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
         const currentDay = today.getDate();
-        
+
         // Create 35 or 42 cells depending on the month layout
         const totalCells = (firstDay + daysInMonth) > 35 ? 42 : 35;
         // Adjust grid rows based on total cells
-        grid.className = `flex-1 grid grid-cols-7 grid-rows-${totalCells/7} gap-[1px]`;
-        
+        grid.className = `flex-1 grid grid-cols-7 grid-rows-${totalCells / 7} gap-[1px]`;
+
         for (let i = 0; i < totalCells; i++) {
             const cell = document.createElement('div');
             cell.className = 'bg-white p-1 flex flex-col min-h-[100px] overflow-hidden hover:bg-surfaceHover transition-colors cursor-pointer group relative';
-            
+
             const dayNum = i - firstDay + 1;
-            
+
             if (i >= firstDay && dayNum <= daysInMonth) {
                 // Active month cell
                 const isToday = isCurrentMonth && dayNum === currentDay;
@@ -593,37 +681,37 @@
                 header.className = 'flex justify-end mb-1';
                 header.innerHTML = `<span class="text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full ${isToday ? 'bg-primary text-white shadow-sm' : 'text-textMain'}">${dayNum}</span>`;
                 cell.appendChild(header);
-                
+
                 // Add task pills
                 const dayTasks = tasksByDate[dayNum] || [];
                 dayTasks.slice(0, 3).forEach(task => { // Show up to 3 tasks
-                    const statusDef = STATUSES[task.status] || {color: 'bg-gray-100 text-gray-700'};
+                    const statusDef = STATUSES[task.status] || { color: 'bg-gray-100 text-gray-700' };
                     const taskEl = document.createElement('div');
                     taskEl.className = `text-[10px] font-bold truncate px-1.5 py-0.5 rounded mb-1 shadow-sm border border-black/5 ${statusDef.color} hover:opacity-80 transition-opacity`;
                     taskEl.innerText = task.title;
                     taskEl.onclick = (e) => { e.stopPropagation(); openTaskPanel(task.id); };
                     cell.appendChild(taskEl);
                 });
-                
+
                 if (dayTasks.length > 3) {
                     const moreEl = document.createElement('div');
                     moreEl.className = 'text-[10px] text-textMuted font-bold text-center mt-auto pb-1';
                     moreEl.innerText = `+${dayTasks.length - 3} more`;
                     cell.appendChild(moreEl);
                 }
-                
+
                 // Quick add button on hover
                 const quickAdd = document.createElement('button');
                 quickAdd.className = 'absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 text-textMuted hover:text-primary transition-all p-1 bg-white/80 backdrop-blur rounded';
                 quickAdd.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>`;
                 quickAdd.onclick = (e) => { e.stopPropagation(); openCreateTaskModal(projectId); };
                 cell.appendChild(quickAdd);
-                
+
             } else {
                 // Empty cell (previous/next month styling)
                 cell.className += ' bg-surface/30';
             }
-            
+
             grid.appendChild(cell);
         }
     }
@@ -653,13 +741,13 @@
         const template = document.getElementById('task-detail-template').content.cloneNode(true);
         panel.innerHTML = '';
         panel.appendChild(template);
-        
+
         // Fetch task details
         try {
             const res = await fetchWithAuth(`/tasks/${taskId}/`);
             if (res.ok) {
                 const task = await res.json();
-                
+
                 document.getElementById('modal-title').innerText = task.title;
                 document.getElementById('modal-description-input').value = task.description || '';
                 document.getElementById('modal-start-date').value = formatDateForInput(task.start_date);
@@ -675,34 +763,34 @@
                     const newAssignee = assigneeSelect.value || null;
                     const ok = await patchTask(taskId, { assignee: newAssignee }, newAssignee ? 'Assignee updated' : 'Task unassigned');
                     if (ok) document.getElementById('modal-assignee').innerText = getMemberLabel(newAssignee);
-                 };
+                };
 
-                 document.getElementById('btn-save-task-details').onclick = async () => {
-                     const btn = document.getElementById('btn-save-task-details');
-                     const originalText = btn.innerText;
-                     btn.disabled = true;
-                     btn.innerText = 'Saving...';
+                document.getElementById('btn-save-task-details').onclick = async () => {
+                    const btn = document.getElementById('btn-save-task-details');
+                    const originalText = btn.innerText;
+                    btn.disabled = true;
+                    btn.innerText = 'Saving...';
 
-                     const timeEstimate = document.getElementById('modal-time-estimate').value;
-                     const payload = {
-                         description: document.getElementById('modal-description-input').value || '',
-                         start_date: document.getElementById('modal-start-date').value ? `${document.getElementById('modal-start-date').value}T00:00:00Z` : null,
-                         due_date: document.getElementById('modal-due-date').value ? `${document.getElementById('modal-due-date').value}T00:00:00Z` : null,
-                         time_estimate_minutes: timeEstimate ? parseInt(timeEstimate, 10) : null,
-                         tags: document.getElementById('modal-tags-input').value || ''
-                     };
+                    const timeEstimate = document.getElementById('modal-time-estimate').value;
+                    const payload = {
+                        description: document.getElementById('modal-description-input').value || '',
+                        start_date: document.getElementById('modal-start-date').value ? `${document.getElementById('modal-start-date').value}T00:00:00Z` : null,
+                        due_date: document.getElementById('modal-due-date').value ? `${document.getElementById('modal-due-date').value}T00:00:00Z` : null,
+                        time_estimate_minutes: timeEstimate ? parseInt(timeEstimate, 10) : null,
+                        tags: document.getElementById('modal-tags-input').value || ''
+                    };
 
-                     console.log('Saving task with payload:', payload);
-                     const success = await patchTask(taskId, payload, 'Task details updated');
+                    console.log('Saving task with payload:', payload);
+                    const success = await patchTask(taskId, payload, 'Task details updated');
 
-                     btn.disabled = false;
-                     btn.innerText = originalText;
-                 };
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                };
 
                 const statusSelect = document.getElementById('modal-status-select');
                 statusSelect.value = task.status;
                 statusSelect.className = `text-xs font-bold uppercase tracking-wide px-2 py-1.5 rounded cursor-pointer outline-none appearance-none border transition-colors ${STATUSES[task.status] ? STATUSES[task.status].color + ' ' + STATUSES[task.status].border : 'bg-surfaceHover border-borderSubtle'}`;
-                
+
                 statusSelect.onchange = async (e) => {
                     const newStatus = e.target.value;
                     try {
@@ -711,15 +799,15 @@
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ status: newStatus })
                         });
-                        if(r.ok) {
+                        if (r.ok) {
                             showToast(`Status updated to ${STATUSES[newStatus].label}`);
                             fetchTasks(); // update background
                             // Update select color
                             statusSelect.className = `text-xs font-bold uppercase tracking-wide px-2 py-1.5 rounded cursor-pointer outline-none appearance-none border transition-colors ${STATUSES[newStatus].color} ${STATUSES[newStatus].border}`;
                         } else showToast('Failed to update status', 'error');
-                    } catch(err) { showToast('Network error', 'error'); }
+                    } catch (err) { showToast('Network error', 'error'); }
                 };
-                
+
                 const prioritySelect = document.getElementById('modal-priority-select');
                 prioritySelect.value = task.priority;
                 const setPrioClass = (val) => {
@@ -727,7 +815,7 @@
                     prioritySelect.className = `text-xs font-bold uppercase tracking-wide px-2 py-1.5 rounded cursor-pointer outline-none appearance-none border transition-colors ${p ? p.badge : 'bg-surfaceHover border-borderSubtle'}`;
                 };
                 setPrioClass(task.priority);
-                
+
                 prioritySelect.onchange = async (e) => {
                     const newPrio = e.target.value;
                     try {
@@ -736,85 +824,310 @@
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ priority: newPrio })
                         });
-                        if(r.ok) {
+                        if (r.ok) {
                             showToast('Priority updated');
                             fetchTasks(); // update background
                             setPrioClass(newPrio);
                         } else showToast('Failed to update priority', 'error');
-                    } catch(err) { showToast('Network error', 'error'); }
+                    } catch (err) { showToast('Network error', 'error'); }
                 };
 
-                // Load Comments
-                loadComments(taskId);
-                
+                // Load Activity Log (Comments + Mutatations)
+                loadActivityLog(taskId);
+                loadChecklists(taskId);
+                loadAttachments(taskId);
+
+                // Bind Global Handlers for this task
+                window.handleCreateChecklist = () => createChecklist(taskId);
+                window.handleAttachFile = () => document.getElementById('attachment-file-input').click();
+
+                document.getElementById('attachment-file-input').onchange = (e) => {
+                    if (e.target.files.length > 0) uploadAttachment(taskId, e.target.files);
+                };
+
                 // Bind Comment Button
                 document.getElementById('btn-post-comment').onclick = () => postComment(taskId);
             }
-        } catch(e) {
+        } catch (e) {
             console.error(e);
         }
     });
 
-    async function loadComments(taskId) {
+    async function loadActivityLog(taskId) {
         try {
-            const res = await fetchWithAuth(`/tasks/${taskId}/comments/`);
-            if (res.ok) {
-                const data = await res.json();
-                const container = document.getElementById('modal-comments');
-                container.innerHTML = '';
-                
-                if (data.results && data.results.length > 0) {
-                    data.results.forEach(comment => {
+            const [commentsRes, activityRes] = await Promise.all([
+                fetchWithAuth(`/tasks/${taskId}/comments/`),
+                fetchWithAuth(`/tasks/${taskId}/activity/`)
+            ]);
+
+            let timeline = [];
+
+            if (commentsRes.ok) {
+                const cData = await commentsRes.json();
+                const comments = cData.results || cData || [];
+                timeline.push(...comments.map(c => ({
+                    type: 'comment',
+                    id: `c_${c.id}`,
+                    created_at: new Date(c.created_at),
+                    user_name: c.user_name || 'User',
+                    content: c.comment
+                })));
+            }
+
+            if (activityRes.ok) {
+                const aData = await activityRes.json();
+                const activities = aData.results || aData || [];
+                timeline.push(...activities.map(a => ({
+                    type: 'activity',
+                    id: `a_${a.id}`,
+                    created_at: new Date(a.created_at),
+                    user_name: a.user_name || 'System',
+                    action: a.action,
+                    detail: a.detail
+                })));
+            }
+
+            timeline.sort((a, b) => a.created_at - b.created_at);
+
+            const container = document.getElementById('modal-comments');
+            container.innerHTML = '';
+
+            if (timeline.length > 0) {
+                timeline.forEach(item => {
+                    if (item.type === 'comment') {
                         container.innerHTML += `
                             <div class="flex gap-3 bg-surface p-3 rounded-lg border border-borderSubtle">
-                                <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold shrink-0">U</div>
+                                <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold shrink-0">${item.user_name.charAt(0).toUpperCase()}</div>
                                 <div>
                                     <div class="flex items-center gap-2 mb-1">
-                                        <span class="text-sm font-bold text-textMain">${comment.user_name || 'User'}</span>
-                                        <span class="text-xs text-textMuted">${new Date(comment.created_at).toLocaleString()}</span>
+                                        <span class="text-sm font-bold text-textMain">${item.user_name}</span>
+                                        <span class="text-xs text-textMuted">${item.created_at.toLocaleString()}</span>
                                     </div>
-                                    <p class="text-sm text-textMain whitespace-pre-wrap">${comment.comment}</p>
+                                    <p class="text-sm text-textMain whitespace-pre-wrap">${item.content}</p>
                                 </div>
                             </div>
                         `;
-                    });
-                } else {
-                    container.innerHTML = `<p class="text-sm text-textMuted italic p-4 text-center">No comments yet. Start the conversation!</p>`;
-                }
+                    } else {
+                        let actionText = '';
+                        if (item.action === 'created') actionText = 'created the task';
+                        else if (item.action === 'status_changed') actionText = `changed status to ${item.detail}`;
+                        else if (item.action === 'priority_changed') actionText = `changed priority to ${item.detail}`;
+                        else if (item.action === 'assignee_changed') actionText = `assigned the task`;
+                        else actionText = item.action.replace('_', ' ');
+
+                        container.innerHTML += `
+                            <div class="flex gap-3 px-3 py-1 items-center opacity-70">
+                                <div class="w-8 flex justify-center text-textMuted"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+                                <div class="text-xs text-textMuted">
+                                    <span class="font-bold">${item.user_name}</span> ${actionText} <span class="ml-1 text-[10px]">${item.created_at.toLocaleString()}</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+            } else {
+                container.innerHTML = `<p class="text-sm text-textMuted italic p-4 text-center">No activity yet. Start the conversation!</p>`;
             }
-        } catch(e) {}
+
+            // Auto scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     async function postComment(taskId) {
         const input = document.getElementById('comment-input');
         const text = input.value.trim();
-        if(!text) return;
-        
+        if (!text) return;
+
         try {
             const res = await fetchWithAuth(`/tasks/${taskId}/comments/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ comment: text })
             });
-            
+
             if (res.ok) {
                 input.value = '';
-                loadComments(taskId);
+                loadActivityLog(taskId);
                 showToast('Comment posted!');
             } else {
                 const data = await res.json().catch(() => ({}));
                 showToast(getFirstErrorMessage(data, 'Failed to post comment'), 'error');
             }
-        } catch(e) {
+        } catch (e) {
             showToast('Network error', 'error');
         }
     }
 
-      // Refresh tasks if created from global modal
-      window.addEventListener('taskCreated', fetchTasks);
+    // --- Checklist Logic ---
+    async function loadChecklists(taskId) {
+        try {
+            const res = await fetchWithAuth(`/tasks/${taskId}/checklists/`);
+            if (!res.ok) return;
+            const data = await res.json();
+            const checklists = data.results || data;
 
-      window.addEventListener('DOMContentLoaded', () => {
-          fetchProjectData();
-      });
-  </script>
- {% endblock %}
+            const container = document.getElementById('checklists-container');
+            container.innerHTML = '';
+
+            checklists.forEach(cl => {
+                const itemsHtml = (cl.items || []).map(item => `
+                    <div class="flex items-center gap-3 py-1 group">
+                        <input type="checkbox" ${item.is_completed ? 'checked' : ''} 
+                            onchange="toggleChecklistItem('${item.id}', this.checked, '${taskId}')"
+                            class="w-4 h-4 rounded border-borderSubtle text-primary focus:ring-primary cursor-pointer">
+                        <span class="text-sm ${item.is_completed ? 'text-textMuted line-through' : 'text-textMain'}">${item.name}</span>
+                        <button onclick="deleteChecklistItem('${item.id}', '${taskId}')" class="opacity-0 group-hover:opacity-100 text-textMuted hover:text-red-500 transition-all">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </div>
+                `).join('');
+
+                container.innerHTML += `
+                    <div class="space-y-3 bg-surface border border-borderSubtle rounded-xl p-4">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-sm font-bold text-textMain">${cl.name}</h4>
+                            <button onclick="deleteChecklist('${cl.id}', '${taskId}')" class="text-textMuted hover:text-red-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                        </div>
+                        <div class="space-y-1">${itemsHtml}</div>
+                        <div class="pt-2 flex gap-2">
+                            <input type="text" placeholder="Add item..." id="cl-input-${cl.id}"
+                                class="flex-1 text-xs px-2 py-1.5 border border-borderSubtle rounded bg-surfaceHover outline-none focus:bg-white focus:ring-1 focus:ring-primary transition-all">
+                            <button onclick="addItemToChecklist('${cl.id}', '${taskId}')" class="text-xs font-bold text-primary px-2 py-1">Add</button>
+                        </div>
+                    </div>
+                `;
+            });
+        } catch (e) { console.error('Load Checklists error:', e); }
+    }
+
+    async function createChecklist(taskId) {
+        const name = prompt('Checklist Name:', 'Task Checklist');
+        if (!name) return;
+        try {
+            const res = await fetchWithAuth(`/tasks/${taskId}/checklists/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name })
+            });
+            if (res.ok) {
+                showToast('Checklist created');
+                loadChecklists(taskId);
+            }
+        } catch (e) { showToast('Error creating checklist', 'error'); }
+    }
+
+    async function deleteChecklist(clId, taskId) {
+        if (!confirm('Delete this checklist?')) return;
+        try {
+            const res = await fetchWithAuth(`/checklists/${clId}/`, { method: 'DELETE' });
+            if (res.ok) {
+                showToast('Checklist deleted');
+                loadChecklists(taskId);
+            }
+        } catch (e) { showToast('Error deleting checklist', 'error'); }
+    }
+
+    async function addItemToChecklist(clId, taskId) {
+        const input = document.getElementById(`cl-input-${clId}`);
+        const name = input.value.trim();
+        if (!name) return;
+
+        try {
+            const res = await fetchWithAuth(`/checklists/${clId}/items/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name })
+            });
+            if (res.ok) {
+                input.value = '';
+                loadChecklists(taskId);
+            }
+        } catch (e) { showToast('Error adding item', 'error'); }
+    }
+
+    async function toggleChecklistItem(itemId, isCompleted, taskId) {
+        try {
+            const res = await fetchWithAuth(`/checklist-items/${itemId}/`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ is_completed: isCompleted })
+            });
+            if (res.ok) loadChecklists(taskId);
+        } catch (e) { }
+    }
+
+    async function deleteChecklistItem(itemId, taskId) {
+        try {
+            const res = await fetchWithAuth(`/checklist-items/${itemId}/`, { method: 'DELETE' });
+            if (res.ok) loadChecklists(taskId);
+        } catch (e) { }
+    }
+
+    // --- Attachment Logic ---
+    async function loadAttachments(taskId) {
+        try {
+            const res = await fetchWithAuth(`/tasks/${taskId}/attachments/`);
+            if (!res.ok) return;
+            const data = await res.json();
+            const items = data.results || data;
+
+            const grid = document.getElementById('attachments-grid');
+            grid.innerHTML = '';
+
+            items.forEach(at => {
+                const isImg = at.file_type.startsWith('image/');
+                const preview = isImg ? `<img src="${at.file}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center bg-gray-100 text-textMuted uppercase text-[10px] font-bold">${at.file_type.split('/')[1] || 'FILE'}</div>`;
+
+                grid.innerHTML += `
+                    <div class="relative group rounded-lg border border-borderSubtle overflow-hidden bg-surface shadow-sm">
+                        <div class="aspect-video">${preview}</div>
+                        <div class="p-2 truncate text-[10px] font-medium text-textMain">${at.file_name}</div>
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                             <a href="${at.file}" target="_blank" class="p-1.5 rounded-full bg-white text-textMain hover:bg-primary hover:text-white transition-colors"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg></a>
+                             <button onclick="deleteAttachment('${at.id}', '${taskId}')" class="p-1.5 rounded-full bg-white text-textMain hover:bg-red-500 hover:text-white transition-colors"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                        </div>
+                    </div>
+                `;
+            });
+        } catch (e) { console.error('Load Attachments error:', e); }
+    }
+
+    async function uploadAttachment(taskId, files) {
+        showToast('Uploading...', 'info');
+        for (let file of files) {
+            const formData = new FormData();
+            formData.append('file', file);
+            try {
+                const res = await fetchWithAuth(`/tasks/${taskId}/attachments/`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (res.ok) {
+                    showToast(`Uploaded ${file.name}`);
+                    loadAttachments(taskId);
+                }
+            } catch (e) { showToast(`Error uploading ${file.name}`, 'error'); }
+        }
+    }
+
+    async function deleteAttachment(atId, taskId) {
+        try {
+            const res = await fetchWithAuth(`/attachments/${atId}/`, { method: 'DELETE' });
+            if (res.ok) {
+                showToast('Attachment deleted');
+                loadAttachments(taskId);
+            }
+        } catch (e) { }
+    }
+
+    // Refresh tasks if created from global modal
+    window.addEventListener('taskCreated', fetchTasks);
+
+    window.addEventListener('DOMContentLoaded', () => {
+        fetchProjectData();
+    });
+</script>
+{% endblock %}

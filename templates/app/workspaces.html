@@ -1,0 +1,135 @@
+{% extends 'app_layout.html' %}
+
+{% block header_left %}
+<div class="flex items-center gap-3">
+    <div class="w-8 h-8 rounded bg-primary text-white flex items-center justify-center font-bold text-sm shadow-sm">
+        W
+    </div>
+    <h1 class="text-xl font-bold text-textMain tracking-tight">Workspaces</h1>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="px-8 py-6 max-w-5xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-lg font-semibold text-textMain">Your Workspaces</h2>
+        <button onclick="document.getElementById('modal-create-workspace').classList.remove('hidden')"
+            class="bg-primary hover:bg-primaryHover text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+            + New Workspace
+        </button>
+    </div>
+
+    <div id="workspaces-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="col-span-full text-center py-8 text-textMuted italic">Loading workspaces...</div>
+    </div>
+</div>
+
+<!-- Create Workspace Modal -->
+<div id="modal-create-workspace" class="fixed inset-0 z-[60] flex items-center justify-center hidden">
+    <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onclick="this.parentElement.classList.add('hidden')">
+    </div>
+    <div class="bg-white rounded-xl shadow-premium w-full max-w-md mx-4 relative z-10 p-6">
+        <h3 class="text-lg font-bold text-textMain mb-4">Create New Workspace</h3>
+        <form id="form-create-workspace" class="space-y-4">
+            <div>
+                <label class="block text-sm font-semibold text-textMain mb-1.5">Workspace Name</label>
+                <input type="text" id="workspace-name" required
+                    class="w-full px-4 py-2 bg-surfaceHover border border-borderSubtle rounded-lg focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-textMain mb-1.5">Description</label>
+                <textarea id="workspace-desc" rows="3"
+                    class="w-full px-4 py-2 bg-surfaceHover border border-borderSubtle rounded-lg resize-none outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"></textarea>
+            </div>
+            <div class="flex justify-end gap-3 pt-2">
+                <button type="button" class="px-4 py-2 text-sm font-medium hover:bg-surfaceHover rounded-lg"
+                    onclick="document.getElementById('modal-create-workspace').classList.add('hidden')">Cancel</button>
+                <button type="submit" id="btn-submit-ws"
+                    class="bg-primary hover:bg-primaryHover text-white px-4 py-2 rounded-lg text-sm font-medium">Create</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    async function loadWorkspacesPage() {
+        try {
+            const res = await fetchWithAuth('/workspaces/');
+            if (res.ok) {
+                const data = await res.json();
+                renderWorkspaces(data.results || data);
+            }
+        } catch (e) {
+            document.getElementById('workspaces-grid').innerHTML = `<div class="col-span-full text-red-500">Failed to load</div>`;
+        }
+    }
+
+    function renderWorkspaces(workspaces) {
+        const grid = document.getElementById('workspaces-grid');
+        if (workspaces.length === 0) {
+            grid.innerHTML = `<div class="col-span-full text-center py-8 text-textMuted">No workspaces found. Create one to get started!</div>`;
+            return;
+        }
+
+        let html = '';
+        workspaces.forEach(ws => {
+            const initials = ws.name.substring(0, 2).toUpperCase();
+            html += `
+                <div class="bg-white rounded-xl border border-borderSubtle p-5 hover:shadow-md transition-shadow flex flex-col group cursor-pointer" onclick="window.location.href='/workspaces/${ws.id}/'">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                            ${initials}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-bold text-textMain truncate text-lg group-hover:text-primary transition-colors">${ws.name}</h3>
+                            <p class="text-xs text-textMuted">Created by ${ws.created_by_username || 'Unknown'}</p>
+                        </div>
+                    </div>
+                    
+                    <p class="text-sm text-textBody line-clamp-2 mb-4 flex-1">
+                        ${ws.description || '<span class="italic text-textMuted">No description provided</span>'}
+                    </p>
+                    
+                    <div class="flex items-center justify-between pt-4 border-t border-borderSubtle">
+                        <div class="flex items-center gap-2 text-xs text-textMuted font-medium">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                            ${ws.member_count} Members
+                        </div>
+                        <button onclick="event.stopPropagation(); window.location.href='/workspaces/${ws.id}/members/'" class="text-xs font-medium text-primary hover:text-primaryHover px-2 py-1 rounded bg-indigo-50">Manage</button>
+                    </div>
+                </div>
+            `;
+        });
+        grid.innerHTML = html;
+    }
+
+    document.getElementById('form-create-workspace').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('workspace-name').value;
+        const description = document.getElementById('workspace-desc').value;
+        const btn = document.getElementById('btn-submit-ws');
+        btn.disabled = true;
+        btn.innerHTML = 'Creating...';
+
+        try {
+            const res = await fetchWithAuth('/workspaces/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, description })
+            });
+            if (res.ok) {
+                document.getElementById('modal-create-workspace').classList.add('hidden');
+                document.getElementById('form-create-workspace').reset();
+                loadWorkspacesPage();
+                // reload sidebar as well
+                if (window.loadWorkspaceSidebarData) loadWorkspaceSidebarData();
+            }
+        } catch (e) { } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Create';
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', loadWorkspacesPage);
+</script>
+{% endblock %}
