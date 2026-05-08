@@ -513,7 +513,7 @@
                         <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${statusDef.color}">${statusDef.label}</span>
                         <span class="text-xs text-textMuted font-medium">${statusTasks.length}</span>
                     </div>
-                    <button class="text-textMuted hover:text-textMain"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></button>
+                    <button onclick="addTaskToColumn('${statusKey}')" class="text-textMuted hover:text-textMain cursor-pointer transition-colors" type="button"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></button>
                 </div>
                 <div class="flex-1 bg-surfaceHover rounded-lg p-2 overflow-y-auto space-y-2 border border-borderSubtle" id="board-col-${statusKey}" data-status="${statusKey}">
                     ${statusTasks.map(t => {
@@ -1121,13 +1121,85 @@
                 loadAttachments(taskId);
             }
         } catch (e) { }
-    }
+     }
 
-    // Refresh tasks if created from global modal
-    window.addEventListener('taskCreated', fetchTasks);
+    // Task creation from modal
+    window.addTaskToColumn = function(status) {
+        // Open modal with pre-selected status
+        const statusSelect = document.getElementById('task-status');
+        if (statusSelect) {
+            statusSelect.value = status;
+        }
+        openCreateTaskModal(projectId);
+    };
 
-    window.addEventListener('DOMContentLoaded', () => {
-        fetchProjectData();
+    // Handle task creation form submission
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('form-create-task');
+        if (form) {
+            form.onsubmit = async (e) => {
+                e.preventDefault();
+
+                const projectSelect = document.getElementById('task-project');
+                const titleInput = document.getElementById('task-title');
+                const descInput = document.getElementById('task-desc');
+                const statusSelect = document.getElementById('task-status');
+                const prioritySelect = document.getElementById('task-priority');
+
+                // Validate required fields
+                if (!titleInput.value.trim()) {
+                    showToast('Please enter a task title', 'error');
+                    return;
+                }
+
+                const projectId = projectSelect.value || window.projectId;
+                const payload = {
+                    title: titleInput.value,
+                    description: descInput.value,
+                    status: statusSelect.value || 'todo',
+                    priority: prioritySelect.value || 'medium',
+                    project: projectId
+                };
+
+                try {
+                    const res = await fetchWithAuth('/tasks/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (res.ok) {
+                        const newTask = await res.json();
+                        showToast('Task created successfully!');
+
+                        // Reset form
+                        form.reset();
+                        closeCreateTaskModal();
+
+                        // Refresh tasks
+                        fetchTasks();
+
+                        // Dispatch event for other listeners
+                        window.dispatchEvent(new CustomEvent('taskCreated', { detail: newTask }));
+                    } else {
+                        const errorData = await res.json();
+                        const errorMsg = getFirstErrorMessage(errorData, 'Failed to create task');
+                        showToast(errorMsg, 'error');
+                    }
+                } catch (e) {
+                    console.error('Task creation error:', e);
+                    showToast('Error creating task', 'error');
+                }
+            };
+        }
     });
+
+     // Refresh tasks if created from global modal
+     window.addEventListener('taskCreated', fetchTasks);
+
+     window.addEventListener('DOMContentLoaded', () => {
+         fetchProjectData();
+     });
+
 </script>
 {% endblock %}

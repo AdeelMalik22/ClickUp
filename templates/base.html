@@ -174,12 +174,17 @@
         window.addEventListener('DOMContentLoaded', () => {
             const publicPages = ['/', '/register/'];
             const path = window.location.pathname;
+            const token = getAuthToken();
 
-            if (!publicPages.includes(path) && !getAuthToken()) {
+            // Redirect unauthenticated users from protected pages
+            if (!publicPages.includes(path) && !token) {
+                console.warn('No auth token for protected page:', path);
                 window.location.href = '/';
-            } else if (publicPages.includes(path) && getAuthToken()) {
-                window.location.href = '/dashboard/';
+                return;
             }
+
+            // Don't redirect authenticated users away from login/register
+            // They'll stay on page, but auth handlers will work client-side
         });
     </script>
     {% block extra_head %}{% endblock %}

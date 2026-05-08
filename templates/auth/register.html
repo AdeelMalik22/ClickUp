@@ -100,6 +100,13 @@
 </style>
 
 <script>
+    // Redirect authenticated users to dashboard on page load
+    window.addEventListener('load', () => {
+        if (getAuthToken()) {
+            window.location.href = '/dashboard/';
+        }
+    });
+
     document.getElementById('register-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -138,6 +145,16 @@
                 const loginData = await loginRes.json();
                 if (loginRes.ok) {
                     setAuthToken(loginData.access, loginData.refresh);
+                    // Save user data
+                    try {
+                        const userRes = await fetchWithAuth('/users/me/');
+                        if (userRes.ok) {
+                            const userData = await userRes.json();
+                            setAuthUser(userData);
+                        }
+                    } catch (e) {
+                        console.error('Failed to fetch user data:', e);
+                    }
                     window.location.href = '/onboarding/';
                 } else {
                     window.location.href = '/';

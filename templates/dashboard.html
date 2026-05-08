@@ -175,18 +175,34 @@
                 }
             }
         } catch (err) {
-            console.error(err);
+            console.error('Error loading projects:', err);
         }
         
         // Fetch global tasks
         fetchDashboardTasks();
     });
 
-    if (currentWorkspace) {
+    if (window.currentWorkspace) {
         // If it was already loaded (e.g. fast cache), dispatch immediately
-        document.dispatchEvent(new CustomEvent('workspaceLoaded', { detail: currentWorkspace }));
+        document.dispatchEvent(new CustomEvent('workspaceLoaded', { detail: window.currentWorkspace }));
     }
     
+    // Fallback: If workspace hasn't loaded after 2 seconds, load data anyway
+    setTimeout(() => {
+        if (!window.currentWorkspace) {
+            console.warn('Workspace not loaded, attempting direct load...');
+            window.loadWorkspaceSidebarData(); // Trigger sidebar load
+            setTimeout(() => {
+                if (window.currentWorkspace) {
+                    document.dispatchEvent(new CustomEvent('workspaceLoaded', { detail: window.currentWorkspace }));
+                } else {
+                    // Last resort: load tasks anyway
+                    fetchDashboardTasks();
+                }
+            }, 500);
+        }
+    }, 2000);
+
     async function fetchDashboardTasks() {
         try {
             const res = await fetchWithAuth(`/tasks/?limit=20`);
@@ -238,7 +254,16 @@
     }
 
     // Refresh dashboard tasks when a new one is created globally
-    window.addEventListener('taskCreated', fetchDashboardTasks);
+    window.addEventListener('taskCreated', () => {
+        fetchDashboardTasks();
+    });
+
+    // Refresh projects when a new one is created
+    window.addEventListener('projectCreated', () => {
+        if (window.currentWorkspace) {
+            document.dispatchEvent(new CustomEvent('workspaceLoaded', { detail: window.currentWorkspace }));
+        }
+    });
 
     // Set greeting based on time
     const hour = new Date().getHours();

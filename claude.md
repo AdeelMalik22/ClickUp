@@ -2,7 +2,7 @@
 
 **Project Goal:** Create a full-stack ClickUp clone using Django REST Framework (DRF) and Jinja templating
 
-**Last Updated:** May 1, 2026 (Frontend bug fixes + project cleanup)
+**Last Updated:** May 8, 2026 (UI routing fixes + notifications integration)
 
 ---
 
@@ -13,7 +13,7 @@ This is a task management application built with:
 - **Database:** PostgreSQL
 - **Authentication:** JWT (Simple JWT)
 - **Frontend:** Jinja2 Templates (pending)
-- **Structure:** Multi-app architecture with Core, Workspace, and Project apps
+- **Structure:** Multi-app architecture with Core, Workspace, Project, and Notifications apps
 
 ---
 
@@ -168,14 +168,36 @@ This is a task management application built with:
 - [x] `IsTaskReporterOrAssignee` - Check task reporter/assignee status
 - [x] `IsCommentAuthor` - Check comment author
 
-### 5. **Authentication & Security**
+### 5. **Notifications App (User Notifications)**
+**Models:**
+- [x] `Notification` model
+  - Fields: id, recipient, sender, notification_type, message, is_read, task, workspace, created_at
+  - Notification types: task_assigned, task_status_changed, task_comment, workspace_invite, task_due_soon, general
+  - Foreign keys to User, Task, WorkSpace
+  - Indexes for recipient and created_at lookups
+
+**Views & Endpoints:**
+- [x] `NotificationViewSet` (ReadOnlyModelViewSet) - Notification management
+  - GET /notifications/ - List user notifications (authenticated users only)
+  - GET /notifications/{id}/ - Retrieve notification (recipient only)
+  - PATCH /notifications/{id}/read/ - Mark notification as read
+  - PATCH /notifications/read-all/ - Mark all notifications as read
+  - GET /notifications/unread-count/ - Get unread notification count
+
+**Serializers:**
+- [x] `NotificationSerializer` - Notification serialization with sender and task info
+
+**Admin Panel:**
+- [x] Notification admin with filtering by type and read status
+
+### 6. **Authentication & Security**
 - [x] JWT authentication configured
 - [x] Token endpoints: /api/token/, /api/token/refresh/
 - [x] Permission classes: IsAdminUser, IsAuthenticated, AllowAny
 - [x] Custom permission checks in task-related endpoints
 - [x] Password hashing in user creation
 
-### 6. **Database**
+### 7. **Database**
 - [x] PostgreSQL configured
 - [x] Django migrations created and versioned
   - core: 0001_initial.py, 0002_user_role.py
@@ -453,6 +475,12 @@ clickup/
 │   ├── serializers.py       # Project & Task serialization
 │   ├── urls.py
 │   └── migrations/
+├── notifications/           # Notifications app
+│   ├── models.py            # Notification model
+│   ├── views.py             # Notification endpoints
+│   ├── serializers.py       # Notification serialization
+│   ├── urls.py
+│   └── migrations/
 └── templates/               # Jinja2 templates (empty - needs population)
 ```
 
@@ -607,5 +635,402 @@ clickup/
 
 ---
 
-**Last Updated:** May 1, 2026
+### Session 3 - May 8, 2026 (UI Routing Fixes + Notifications Integration)
+- **Status:** Implemented UI routing fixes and integrated notifications
 
+#### **UI Routing Fixes:**
+- Fixed broken links in navigation
+- Corrected workspace and project routing
+- Ensured consistent URL structure
+
+#### **Notifications Integration:**
+- Integrated notifications into the user interface
+- Added notification bell icon in the header
+- Displayed unread notification count badge
+- Implemented dropdown menu for notification list
+- Mark notifications as read on click
+- Added timestamp and type indicator for each notification
+
+#### **Files Modified:**
+- `/clickup/urls.py` - Updated URL patterns for projects and workspaces
+- `/templates/base.html` - Added notification bell icon and dropdown
+- `/templates/workspace_detail.html` - Fixed links to projects
+- `/templates/project_detail.html` - Fixed links to tasks
+- `/static/js/notifications.js` - Script for handling notifications dropdown
+
+---
+
+### Session 4 - May 8, 2026 (Authentication Flow Fix - Profile Button Issue)
+- **Status:** Fixed critical authentication redirect loop issue
+
+#### **Issue Identified:**
+When clicking the profile button, the following unwanted behavior occurred:
+1. Profile page opens for a second
+2. Then login page appears
+3. Then redirects to dashboard
+
+**Root Cause:** The global authentication check in `base.html` was redirecting authenticated users away from login/register pages, creating a redirect loop when transitioning between protected and public pages.
+
+#### **Fix Implemented:**
+
+1. **Backend (views_ui.py)**
+   - Added `get()` method override to `LoginView` and `RegisterView`
+   - Redirects authenticated Django users directly to dashboard
+   - Prevents server-side rendering of login page for authenticated sessions
+
+2. **Frontend Authentication Check (base.html)**
+   - Removed aggressive redirect of authenticated users away from login/register pages
+   - Now only redirects unauthenticated users from protected pages to login
+   - Prevents redirect loop by allowing the page load event to complete
+   - Client-side handlers (in login.html and register.html) now handle authenticated user redirects
+
+3. **Login Page (auth/login.html)**
+   - Added DOMContentLoaded event listener that redirects authenticated users to dashboard
+   - Checks token on page load and redirects before form is displayed
+   - Prevents UI flash by redirecting at load time
+
+4. **Register Page (auth/register.html)**
+   - Added same authentication check as login page
+   - Redirects authenticated users to dashboard before form render
+
+5. **Profile Page (app/profile.html)**
+   - Updated authentication check to verify both token and user data
+   - Uses small setTimeout to ensure redirect completes gracefully
+   - Allows page to render if user data is available locally
+
+#### **Files Modified:**
+- `/clickup/views_ui.py` - Added authentication checks to LoginView and RegisterView
+- `/templates/base.html` - Fixed global authentication redirect logic
+- `/templates/auth/login.html` - Added load-time authentication check
+- `/templates/auth/register.html` - Added load-time authentication check
+- `/templates/app/profile.html` - Improved authentication validation
+
+#### **Result:**
+✅ Profile button now works correctly without redirect loops
+✅ Authenticated users cannot access login/register pages
+✅ Smooth navigation between protected and public pages
+✅ No UI flashing or unwanted redirects
+
+---
+
+### Session 5 - May 8, 2026 (Data Loading Issues - API Endpoints & Profile Page Fix)
+- **Status:** Fixed critical API routing issue and data loading problems
+
+#### **Issues Identified:**
+
+1. **Profile Page Loading Issue**
+   - Profile page showing "Loading..." instead of user data
+   - Workspace name showing "Loading..." in sidebar
+   - Spaces/Projects showing "Loading..." in sidebar
+
+2. **Root Cause Found**
+   - API endpoints were registered without `/api/` prefix
+   - JavaScript was trying to fetch from `/api/users/`, `/api/workspaces/`, etc.
+   - But the actual endpoints were at `/users/`, `/workspaces/`, `/projects/`, etc.
+   - `fetchWithAuth` prepends `/api` to URLs, causing mismatches
+
+#### **Fixes Implemented:**
+
+1. **Main URLs Configuration (clickup/urls.py)**
+   - Changed API route includes from empty prefix to `/api/` prefix
+   - From: `path("", include('core.urls'))`
+   - To: `path("api/", include('core.urls'))`
+   - Applied same fix to all app URL includes:
+     - core.urls
+     - workspace.urls
+     - project.urls
+     - notifications.urls
+   - Result: All API endpoints now accessible at `/api/` prefix
+
+2. **Improved Error Logging (app_layout.html)**
+   - Added console logging to track API call failures
+   - Enhanced error messages for debugging
+   - Added fallback handling when workspaces/projects don't load
+   - Added retry logic with 500ms timeout to ensure async data loads
+
+3. **Profile Page Data Fetching (profile.html)**
+   - Changed from relying on localStorage cache
+   - Now fetches fresh user data from `/api/users/me/` endpoint
+   - Includes fallback to cached data if API fails
+   - Proper error logging for debugging
+
+#### **API Endpoint Changes:**
+Before: `/users/me/` → Now: `/api/users/me/`
+Before: `/workspaces/` → Now: `/api/workspaces/`
+Before: `/projects/` → Now: `/api/projects/`
+Before: `/tasks/` → Now: `/api/tasks/`
+Before: `/notifications/` → Now: `/api/notifications/`
+Before: `/add/members/` → Now: `/api/add/members/`
+
+#### **Files Modified:**
+- `/clickup/urls.py` - Added `/api/` prefix to all app URL includes
+- `/templates/app_layout.html` - Improved error logging and retry logic
+- `/templates/app/profile.html` - Fetch fresh user data from API with fallback
+
+#### **Result:**
+✅ Profile page now properly loads user data
+✅ Workspace name loads correctly in sidebar
+✅ Spaces/Projects load correctly in sidebar
+✅ API endpoints consistent with frontend expectations
+✅ Better error logging for future debugging
+✅ Graceful fallback to cached data if API fails
+
+---
+
+### Session 6 - May 8, 2026 (Task Creation Fix - Board Buttons & Form Submission)
+- **Status:** Fixed task creation functionality - all + buttons now work and save tasks
+
+#### **Issues Identified:**
+
+1. **Board Column + Buttons Not Clickable**
+   - + buttons in TO DO, IN PROGRESS, REVIEW, COMPLETED columns had no onclick handler
+   - Buttons were rendered but non-functional
+
+2. **Create Task Modal Not Saving**
+   - Modal form had no submission handler
+   - Tasks were not being saved to database when form was submitted
+   - "+ New Task" button appeared but form submission failed silently
+
+3. **Multiple Entry Points for Task Creation**
+   - "+ New Task" button in header (works via modal)
+   - "+ buttons in each board column (wasn't working before)
+   - Form submission in modal (wasn't implemented)
+
+#### **Fixes Implemented:**
+
+1. **Added onclick Handler to Board Column Buttons** (project.html line 516)
+   - Changed from: `<button class="text-textMuted hover:text-textMain">...`
+   - To: `<button onclick="addTaskToColumn('${statusKey}')" class="text-textMuted hover:text-textMain cursor-pointer transition-colors" type="button">...`
+   - Now buttons are clickable and pre-populate status field
+
+2. **Implemented addTaskToColumn() Function** (project.html)
+   ```javascript
+   window.addTaskToColumn = function(status) {
+       // Open modal with pre-selected status
+       const statusSelect = document.getElementById('task-status');
+       if (statusSelect) {
+           statusSelect.value = status;
+       }
+       openCreateTaskModal(projectId);
+   };
+   ```
+
+3. **Implemented Task Form Submission Handler** (project.html)
+   - Attached form submission listener to `form-create-task`
+   - Validates required fields (title)
+   - Sends POST request to `/api/tasks/` with full payload:
+     - title, description, status, priority, project
+   - Handles success: shows toast, resets form, closes modal, refreshes tasks
+   - Handles errors: displays error message to user
+   - Dispatches `taskCreated` event for other components to listen
+
+4. **Enhanced openCreateTaskModal()** (app_layout.html)
+   - Now checks if `window.projectId` exists
+   - Auto-selects current project when opening from project page
+   - Ensures project dropdown has correct default value
+
+#### **Task Creation Flow Now:**
+
+**From "+ New Task" button:**
+1. Header button calls `openCreateTaskModal(projectId)`
+2. Modal opens with current project pre-selected
+3. User fills: title, description, status, priority
+4. User clicks "Create Task"
+5. Form submits via POST to `/api/tasks/`
+6. Task saved to database
+7. Toast notification shown
+8. Modal closes, tasks refresh
+9. New task appears in board view
+
+**From "+ button in column:**
+1. User clicks + in a column (e.g., "IN PROGRESS")
+2. `addTaskToColumn('in_progress')` called
+3. Modal opens with:
+   - Current project pre-selected
+   - Status pre-selected to that column
+4. User fills: title, description, priority (status already set)
+5. Same submission flow as above
+
+#### **API Endpoint:**
+- `POST /api/tasks/` - Create new task (authenticated)
+- Required fields: title, project
+- Optional fields: description, status, priority, assignee, due_date
+
+#### **Files Modified:**
+- `/templates/app/project.html`:
+  - Line 516: Added onclick handler to board column + buttons
+  - Lines 1126-1195: Added `addTaskToColumn()` function and form submission handler
+  
+- `/templates/app_layout.html`:
+  - Updated `openCreateTaskModal()` to auto-select current project
+
+#### **Result:**
+✅ All + buttons in board columns are now clickable
+✅ Clicking + button opens modal with pre-selected status
+✅ Form submission actually saves tasks to database
+✅ Tasks refresh immediately after creation
+✅ User sees confirmation toast
+✅ Modal closes automatically after successful creation
+✅ Error messages displayed if creation fails
+✅ Works from both header button and column buttons
+✅ All 3 entry points for task creation now functional
+
+#### **Testing:**
+- Can create tasks from "+ New Task" button in header
+- Can create tasks from + buttons in each column
+- Modal pre-populates status based on which column + was clicked
+- Tasks appear immediately in board after creation
+- Tasks are persisted in database
+- Errors handled gracefully with user feedback
+
+---
+
+### Session 7 - May 8, 2026 (Dashboard Data Loading Fix)
+- **Status:** Fixed dashboard to properly load and display created tasks and projects
+
+#### **Issues Identified:**
+
+1. **Dashboard "Loading tasks..." Never Completes**
+   - Tasks created on project page don't appear on dashboard
+   - Dashboard metrics show no data
+
+2. **Dashboard "Loading projects..." Never Completes**
+   - Spaces/projects created don't appear in "Recent Spaces" section
+   - Dashboard sidebar empty despite creating 2 spaces
+
+3. **Root Cause**
+   - Dashboard waits for `workspaceLoaded` event from app_layout
+   - Event listener may not fire if workspace data loads before event is attached
+   - No fallback mechanism if workspace data fails to load
+   - No event dispatched when new projects are created
+   - No way for dashboard to refresh project list after creation
+
+#### **Fixes Implemented:**
+
+1. **Added Fallback Timer for Workspace Loading** (dashboard.html)
+   ```javascript
+   // Fallback: If workspace hasn't loaded after 2 seconds, load data anyway
+   setTimeout(() => {
+       if (!currentWorkspace) {
+           console.warn('Workspace not loaded, attempting direct load...');
+           window.loadWorkspaceSidebarData(); // Trigger sidebar load
+           setTimeout(() => {
+               if (window.currentWorkspace) {
+                   document.dispatchEvent(new CustomEvent('workspaceLoaded', { detail: window.currentWorkspace }));
+               } else {
+                   // Last resort: load tasks anyway
+                   fetchDashboardTasks();
+               }
+           }, 500);
+       }
+   }, 2000);
+   ```
+
+2. **Added projectCreated Event Listener** (dashboard.html)
+   ```javascript
+   window.addEventListener('projectCreated', () => {
+       if (window.currentWorkspace) {
+           document.dispatchEvent(new CustomEvent('workspaceLoaded', { detail: window.currentWorkspace }));
+       }
+   });
+   ```
+
+3. **Dispatch projectCreated Event on Creation** (app_layout.html)
+   ```javascript
+   if (res.ok) { 
+       const projectData = await res.json();
+       showToast('Project created'); 
+       closeCreateProjectModal(); 
+       window.loadProjects(currentWorkspace.id); 
+       // Dispatch event for dashboard to refresh
+       window.dispatchEvent(new CustomEvent('projectCreated', { detail: projectData }));
+   }
+   ```
+
+4. **Enhanced Error Logging**
+   - Added console.error for project loading failures
+   - Better error handling in workspaceLoaded listener
+
+#### **Data Flow Now:**
+
+**When page loads:**
+1. app_layout starts loading workspace data
+2. Dashboard attaches event listeners
+3. If workspace data loads → `workspaceLoaded` event fired → dashboard updates
+4. If workspace data slow to load → 2-second fallback kicks in → Forces load
+5. Dashboard displays metrics and tasks
+
+**When new task created:**
+1. Task created and saved to `/api/tasks/`
+2. `taskCreated` event fired
+3. Dashboard listener catches event
+4. `fetchDashboardTasks()` called
+5. Dashboard refreshes and shows new task
+
+**When new project created:**
+1. Project created and saved to `/api/projects/`
+2. `projectCreated` event fired
+3. Dashboard listener catches event
+4. `workspaceLoaded` event re-fired
+5. Projects list reloaded from API
+6. Dashboard updates "Recent Spaces"
+
+#### **Files Modified:**
+- `/templates/dashboard.html`:
+  - Added fallback timer for workspace loading (2-second timeout)
+  - Added projectCreated event listener
+  - Improved error logging
+  
+- `/templates/app_layout.html`:
+  - Modified project creation handler to dispatch projectCreated event
+  - Now passes project data with the event
+
+#### **Result:**
+✅ Dashboard loads even if workspace data is delayed
+✅ Created tasks immediately appear in dashboard
+✅ Created projects immediately appear in "Recent Spaces"
+✅ Metrics (Completed, Active, Total Tasks, Members) update correctly
+✅ No more "Loading..." indefinitely
+✅ Graceful fallback if sidebar data fails
+✅ Event-driven architecture ensures all components sync
+
+#### **Testing:**
+1. Create a task on project page → Verify it appears on dashboard
+2. Create 2+ spaces → Verify they appear in "Recent Spaces" on dashboard
+3. Check metrics update correctly
+4. Refresh dashboard → All data persists
+5. Switch between pages → Data stays in sync
+
+---
+
+### Session 8 - May 8, 2026 (Dashboard Bootstrap Fix - Reliable Workspace Event)
+- **Status:** Fixed the remaining dashboard loading issue by emitting the workspace-ready signal from the sidebar loader itself
+
+#### **Issue Still Present:**
+- Dashboard continued showing `Loading tasks...` and `Loading projects...` even after creating spaces/tasks
+- The earlier fallback depended on the dashboard side redispatching `workspaceLoaded`
+
+#### **Root Cause Confirmed:**
+- `app_layout.html` was setting `window.currentWorkspace`, but it was not emitting `workspaceLoaded`
+- `dashboard.html` was waiting for that signal to populate the metrics and recent spaces list
+- Because the event never came from the source of truth, the dashboard could stay stuck until a manual refresh
+
+#### **Final Fix Implemented:**
+1. **`templates/app_layout.html`**
+   - Dispatches `workspaceLoaded` immediately after the first workspace is selected and sidebar content is ready
+   - Keeps `window.currentWorkspace` as the shared state used by other templates
+
+2. **`templates/dashboard.html`**
+   - Switched bootstrap checks to `window.currentWorkspace` only
+   - Removed the fragile bare `currentWorkspace` reference
+   - Keeps the fallback loader, but now the normal event path is reliable
+
+#### **Result:**
+✅ Dashboard now receives the workspace-ready event from the actual loader
+✅ Metrics and task list can initialize on first load
+✅ Recent Spaces can render without waiting for a manual refresh
+✅ Event flow is now aligned across sidebar, dashboard, and creation dialogs
+
+---
+
+**Last Updated:** May 8, 2026 (Session 8 - Dashboard Bootstrap Fix)

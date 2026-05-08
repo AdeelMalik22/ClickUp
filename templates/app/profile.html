@@ -54,14 +54,42 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+        const token = getAuthToken();
         const u = getAuthUser();
-        if (u) {
-            document.getElementById('profile-username').innerText = u.username;
-            document.getElementById('profile-email').innerText = u.email;
-            document.getElementById('profile-initial').innerText = u.username.charAt(0).toUpperCase();
-        } else {
-            window.location.href = '/';
+
+        // If no auth token, redirect to login
+        if (!token) {
+            setTimeout(() => window.location.href = '/', 100);
+            return;
+        }
+
+        // Try to fetch fresh user data from API
+        try {
+            const res = await fetchWithAuth('/users/me/');
+            if (res.ok) {
+                const userData = await res.json();
+                setAuthUser(userData);
+                document.getElementById('profile-username').innerText = userData.username;
+                document.getElementById('profile-email').innerText = userData.email;
+                document.getElementById('profile-initial').innerText = userData.username.charAt(0).toUpperCase();
+            } else {
+                console.error('Failed to fetch user profile:', res.status);
+                // Fallback to cached data
+                if (u) {
+                    document.getElementById('profile-username').innerText = u.username;
+                    document.getElementById('profile-email').innerText = u.email;
+                    document.getElementById('profile-initial').innerText = u.username.charAt(0).toUpperCase();
+                }
+            }
+        } catch (e) {
+            console.error('Error fetching user profile:', e);
+            // Fallback to cached data
+            if (u) {
+                document.getElementById('profile-username').innerText = u.username;
+                document.getElementById('profile-email').innerText = u.email;
+                document.getElementById('profile-initial').innerText = u.username.charAt(0).toUpperCase();
+            }
         }
     });
 </script>

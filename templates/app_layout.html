@@ -151,9 +151,15 @@
                     document.getElementById('active-workspace-name').innerText = currentWorkspace.name;
                     document.getElementById('workspace-initial').innerText = currentWorkspace.name.charAt(0).toUpperCase();
                     window.loadProjects(currentWorkspace.id);
+                    document.dispatchEvent(new CustomEvent('workspaceLoaded', { detail: currentWorkspace }));
+                } else {
+                    console.warn('No workspaces found for user');
+                    document.getElementById('active-workspace-name').innerText = 'No Workspace';
                 }
+            } else {
+                console.error('Failed to fetch workspaces:', res.status);
             }
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error('Error loading workspaces:', e); }
     }
 
     window.loadProjects = async function (wsId) {
@@ -177,11 +183,14 @@
             const res = await fetchWithAuth('/users/me/');
             if (res.ok) {
                 const user = await res.json();
+                console.log('User data fetched:', user);
                 setAuthUser(user);
                 document.getElementById('user-name').innerText = user.username;
                 document.getElementById('user-initial').innerText = user.username.charAt(0).toUpperCase();
+            } else {
+                console.error('Failed to fetch user data:', res.status, await res.text());
             }
-        } catch (e) {}
+        } catch (e) { console.error('Error fetching user data:', e); }
     }
 
     window.openCreateProjectModal = () => document.getElementById('modal-create-project').classList.remove('hidden');
@@ -193,6 +202,12 @@
              const id = a.href.split('/').filter(Boolean).pop();
              return `<option value="${id}">${a.innerText.trim()}</option>`;
         }).join('');
+
+        // If we're on a project page, set it as selected
+        if (window.projectId) {
+            select.value = window.projectId;
+        }
+
         document.getElementById('modal-create-task').classList.remove('hidden');
     };
     window.closeCreateTaskModal = () => document.getElementById('modal-create-task').classList.add('hidden');
@@ -204,7 +219,14 @@
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({name: document.getElementById('project-name').value, workspace: currentWorkspace.id})
         });
-        if (res.ok) { showToast('Project created'); closeCreateProjectModal(); window.loadProjects(currentWorkspace.id); }
+        if (res.ok) {
+            const projectData = await res.json();
+            showToast('Project created');
+            closeCreateProjectModal();
+            window.loadProjects(currentWorkspace.id);
+            // Dispatch event for dashboard to refresh
+            window.dispatchEvent(new CustomEvent('projectCreated', { detail: projectData }));
+        }
     };
 
     // Notifications
@@ -219,8 +241,15 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+        console.log('App layout DOMContentLoaded fired');
         window.loadWorkspaceSidebarData();
         fetchUserData();
+
+        // Also set a small timeout to ensure data is loaded after initial render
+        setTimeout(() => {
+            window.loadWorkspaceSidebarData();
+            fetchUserData();
+        }, 500);
     });
 </script>
 {% endblock %}

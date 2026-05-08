@@ -75,6 +75,13 @@
 </style>
 
 <script>
+    // Redirect authenticated users to dashboard on page load
+    window.addEventListener('load', () => {
+        if (getAuthToken()) {
+            window.location.href = '/dashboard/';
+        }
+    });
+
     document.getElementById('login-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const username = document.getElementById('username').value;
@@ -97,6 +104,17 @@
                 setAuthToken(data.access, data.refresh);
                 showToast('Logged in successfully!');
                 
+                // Fetch and save user data
+                try {
+                    const userRes = await fetchWithAuth('/users/me/');
+                    if (userRes.ok) {
+                        const userData = await userRes.json();
+                        setAuthUser(userData);
+                    }
+                } catch (e) {
+                    console.error('Failed to fetch user data:', e);
+                }
+
                 const wsRes = await fetchWithAuth('/workspaces/');
                 const wsData = await wsRes.json();
                 
