@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="flex h-screen w-full bg-surface">
+    <!-- Sidebar -->
+    <aside
+        class="w-[260px] bg-sidebarBg text-sidebarText flex flex-col transition-all duration-300 relative z-20 shadow-xl border-r border-[#31353E]">
+        <!-- Workspace Dropdown Area -->
+        <div class="h-14 flex items-center px-4 border-b border-[#3B4048] hover:bg-sidebarHover cursor-pointer group">
+            <div
+                class="w-6 h-6 rounded bg-primary text-white flex items-center justify-center font-bold text-xs shadow-sm shadow-primary/50 mr-2">
+                <span id="workspace-initial">W</span>
+            </div>
+            <div class="flex-1 min-w-0">
+                <h2 id="active-workspace-name" class="text-sm font-semibold text-white truncate">Loading...</h2>
+            </div>
+            <svg class="w-4 h-4 text-sidebarText group-hover:text-white" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+        </div>
+
+        <!-- Sidebar Navigation -->
+        <div class="flex-1 overflow-y-auto py-4 px-2 space-y-6">
+            <div class="space-y-1">
+                <a href="/dashboard/" class="flex items-center px-2 py-1.5 text-sm font-medium rounded-md hover:bg-sidebarHover hover:text-white transition-colors group">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    Home
+                </a>
+                <a href="/workspaces/" class="flex items-center px-2 py-1.5 text-sm font-medium rounded-md hover:bg-sidebarHover hover:text-white transition-colors group">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    Workspaces
+                </a>
+                <a href="/profile/" class="flex items-center px-2 py-1.5 text-sm font-medium rounded-md hover:bg-sidebarHover hover:text-white transition-colors group">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    Profile
+                </a>
+            </div>
+
+            <div>
+                <div class="flex items-center justify-between px-2 mb-2">
+                    <h3 class="text-xs font-semibold text-[#87909E] uppercase tracking-wider">Spaces</h3>
+                    <button class="text-sidebarText hover:text-white" onclick="openCreateProjectModal()"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg></button>
+                </div>
+                <div id="project-list" class="space-y-1">
+                    <div class="px-2 py-2 text-xs text-[#87909E] italic">Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Section -->
+        <div class="p-4 border-t border-[#3B4048]">
+            <div class="flex items-center cursor-pointer hover:bg-sidebarHover p-2 -mx-2 rounded-md" onclick="window.location.href='/profile/'">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold text-sm">
+                    <span id="user-initial">U</span>
+                </div>
+                <div class="ml-3 truncate">
+                    <p id="user-name" class="text-sm font-medium text-white truncate">User</p>
+                    <p class="text-[10px] text-[#87909E]">View Profile</p>
+                </div>
+            </div>
+            <button id="logout-btn" onclick="clearAuth(); window.location.href='/';" class="mt-2 text-xs text-sidebarText hover:text-white px-2">Log out</button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0 bg-white">
+        <header class="h-14 border-b border-borderSubtle flex items-center justify-between px-6 bg-white z-10 shrink-0">
+            <div class="flex items-center flex-1">{% block header_left %}<h1 class="text-lg font-semibold text-textMain">Home</h1>{% endblock %}</div>
+            <div class="flex items-center gap-4">
+                <div class="relative"><button id="btn-notifications" onclick="toggleNotifications()" class="p-1.5 rounded-md hover:bg-surfaceHover text-textMuted transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg><span id="notification-badge" class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white hidden"></span></button>
+                <div id="notifications-dropdown" class="absolute right-0 mt-2 w-80 bg-white border border-borderSubtle rounded-lg shadow-xl hidden z-50 overflow-hidden text-sm">
+                    <div class="flex justify-between items-center px-4 py-2 border-b border-borderSubtle bg-surfaceHover"><h4 class="font-semibold text-textMain">Notifications</h4><button onclick="markAllNotificationsRead()" class="text-xs text-primary">Mark all read</button></div>
+                    <div id="notifications-list" class="max-h-96 overflow-y-auto w-full"></div>
+                </div></div>
+                <button class="w-8 h-8 rounded-full bg-primary hover:bg-primaryHover text-white flex items-center justify-center shadow-md shadow-primary/20" onclick="openCreateTaskModal()"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg></button>
+            </div>
+        </header>
+        <div class="flex-1 overflow-auto bg-surface relative">{% block content %}{% endblock %}</div>
+    </main>
+
+    <!-- Slide-over panel container -->
+    <div id="slide-over-container" class="fixed inset-y-0 right-0 z-50 w-full max-w-3xl transform pointer-events-none hidden">
+        <div id="slide-over-backdrop" class="absolute inset-0 bg-gray-900/20 backdrop-blur-sm opacity-0 transition-opacity duration-300 pointer-events-auto" onclick="closeTaskPanel()"></div>
+        <div id="slide-over-panel" class="absolute right-0 h-full w-full max-w-3xl bg-white shadow-2xl flex flex-col border-l border-borderSubtle transform translate-x-full transition-transform duration-300 pointer-events-auto"></div>
+    </div>
+</div>
+
+<!-- Modals -->
+<div id="modal-create-project" class="fixed inset-0 z-[60] flex items-center justify-center hidden">
+    <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onclick="closeCreateProjectModal()"></div>
+    <div class="bg-white rounded-xl shadow-premium w-full max-w-md mx-4 relative p-6">
+        <h3 class="text-lg font-bold mb-4">Create Space</h3>
+        <form id="form-create-project" class="space-y-4">
+            <input type="text" id="project-name" required class="w-full px-4 py-2 border rounded-lg" placeholder="Space Name">
+            <textarea id="project-desc" rows="3" class="w-full px-4 py-2 border rounded-lg" placeholder="Description"></textarea>
+            <div class="flex justify-end gap-3"><button type="button" onclick="closeCreateProjectModal()">Cancel</button><button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg">Create</button></div>
+        </form>
+    </div>
+</div>
+
+<div id="modal-create-task" class="fixed inset-0 z-[60] flex items-center justify-center hidden">
+    <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onclick="closeCreateTaskModal()"></div>
+    <div class="bg-white rounded-xl shadow-premium w-full max-w-2xl mx-4 relative p-6">
+        <h3 class="text-lg font-bold mb-4">New Task</h3>
+        <form id="form-create-task" class="space-y-4">
+            <select id="task-project" required class="w-full px-4 py-2 border rounded-lg"></select>
+            <input type="text" id="task-title" required class="w-full px-4 py-2 border rounded-lg" placeholder="Task Title">
+            <textarea id="task-desc" rows="3" class="w-full px-4 py-2 border rounded-lg" placeholder="Description"></textarea>
+            <div class="grid grid-cols-2 gap-4">
+                <select id="task-status" class="px-4 py-2 border rounded-lg"><option value="todo">To Do</option><option value="in_progress">In Progress</option><option value="completed">Completed</option></select>
+                <select id="task-priority" class="px-4 py-2 border rounded-lg"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select>
+            </div>
+            <div class="flex justify-end gap-3"><button type="button" onclick="closeCreateTaskModal()">Cancel</button><button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg">Create Task</button></div>
+        </form>
+    </div>
+</div>
+
+<script>
+    let currentWorkspace = null;
+
+    window.openTaskPanel = function(taskId) {
+        console.log('Opening task panel:', taskId);
+        const container = document.getElementById('slide-over-container');
+        const panel = document.getElementById('slide-over-panel');
+        const backdrop = document.getElementById('slide-over-backdrop');
+        container.classList.remove('hidden');
+        setTimeout(() => {
+            backdrop.classList.replace('opacity-0', 'opacity-100');
+            panel.classList.replace('translate-x-full', 'translate-x-0');
+        }, 10);
+        document.dispatchEvent(new CustomEvent('taskPanelOpened', { detail: { taskId } }));
+    };
+
+    window.closeTaskPanel = function() {
+        const panel = document.getElementById('slide-over-panel');
+        const backdrop = document.getElementById('slide-over-backdrop');
+        backdrop.classList.replace('opacity-100', 'opacity-0');
+        panel.classList.replace('translate-x-0', 'translate-x-full');
+        setTimeout(() => { document.getElementById('slide-over-container').classList.add('hidden'); panel.innerHTML = ''; }, 300);
+    };
+
+    window.loadWorkspaceSidebarData = async function () {
+        try {
+            const res = await fetchWithAuth('/workspaces/');
+            if (res.ok) {
+                const data = await res.json();
+                if (data.results && data.results.length > 0) {
+                    currentWorkspace = data.results[0];
+                    window.currentWorkspace = currentWorkspace;
+                    document.getElementById('active-workspace-name').innerText = currentWorkspace.name;
+                    document.getElementById('workspace-initial').innerText = currentWorkspace.name.charAt(0).toUpperCase();
+                    window.loadProjects(currentWorkspace.id);
+                    document.dispatchEvent(new CustomEvent('workspaceLoaded', { detail: currentWorkspace }));
+                } else {
+                    console.warn('No workspaces found for user');
+                    document.getElementById('active-workspace-name').innerText = 'No Workspace';
+                }
+            } else {
+                console.error('Failed to fetch workspaces:', res.status);
+            }
+        } catch (e) { console.error('Error loading workspaces:', e); }
+    }
+
+    window.loadProjects = async function (wsId) {
+        try {
+            const res = await fetchWithAuth(`/projects/?workspace=${wsId}`);
+            if (res.ok) {
+                const projects = (await res.json()).results || [];
+                const list = document.getElementById('project-list');
+                list.innerHTML = projects.length === 0 ? '<div class="px-2 py-2 text-xs italic">No spaces</div>' :
+                    projects.map(p => `
+                        <a href="/project/${p.id}/" class="flex items-center px-2 py-1.5 text-sm rounded-md hover:bg-sidebarHover hover:text-white transition-colors truncate">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-500 mr-3"></span>
+                            <span class="truncate">${p.name}</span>
+                        </a>`).join('');
+            }
+        } catch (e) { console.error(e); }
+    };
+
+    async function fetchUserData() {
+        try {
+            const res = await fetchWithAuth('/users/me/');
+            if (res.ok) {
+                const user = await res.json();
+                console.log('User data fetched:', user);
+                setAuthUser(user);
+                document.getElementById('user-name').innerText = user.username;
+                document.getElementById('user-initial').innerText = user.username.charAt(0).toUpperCase();
+            } else {
+                console.error('Failed to fetch user data:', res.status, await res.text());
+            }
+        } catch (e) { console.error('Error fetching user data:', e); }
+    }
+
+    window.openCreateProjectModal = () => document.getElementById('modal-create-project').classList.remove('hidden');
+    window.closeCreateProjectModal = () => document.getElementById('modal-create-project').classList.add('hidden');
+    
+    window.openCreateTaskModal = () => {
+        const select = document.getElementById('task-project');
+        select.innerHTML = Array.from(document.querySelectorAll('#project-list a')).map(a => {
+             const id = a.href.split('/').filter(Boolean).pop();
+             return `<option value="${id}">${a.innerText.trim()}</option>`;
+        }).join('');
+
+        // If we're on a project page, set it as selected
+        if (window.projectId) {
+            select.value = window.projectId;
+        }
+
+        document.getElementById('modal-create-task').classList.remove('hidden');
+    };
+    window.closeCreateTaskModal = () => document.getElementById('modal-create-task').classList.add('hidden');
+
+    document.getElementById('form-create-project').onsubmit = async (e) => {
+        e.preventDefault();
+        const res = await fetchWithAuth('/projects/', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name: document.getElementById('project-name').value, workspace: currentWorkspace.id})
+        });
+        if (res.ok) {
+            const projectData = await res.json();
+            showToast('Project created');
+            closeCreateProjectModal();
+            window.loadProjects(currentWorkspace.id);
+            // Dispatch event for dashboard to refresh
+            window.dispatchEvent(new CustomEvent('projectCreated', { detail: projectData }));
+        }
+    };
+
+    // Notifications
+    window.toggleNotifications = () => { document.getElementById('notifications-dropdown').classList.toggle('hidden'); loadNotifications(); };
+    async function loadNotifications() {
+        const res = await fetchWithAuth('/notifications/');
+        if (res.ok) {
+            const data = await res.json();
+            const list = document.getElementById('notifications-list');
+            list.innerHTML = (data.results || []).map(n => `<div class="p-3 border-b hover:bg-surfaceHover text-xs">${n.message}</div>`).join('') || '<div class="p-4 italic">No notifications</div>';
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        console.log('App layout DOMContentLoaded fired');
+        window.loadWorkspaceSidebarData();
+        fetchUserData();
+
+        // Also set a small timeout to ensure data is loaded after initial render
+        setTimeout(() => {
+            window.loadWorkspaceSidebarData();
+            fetchUserData();
+        }, 500);
+    });
+</script>
+{% endblock %}

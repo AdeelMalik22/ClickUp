@@ -1,0 +1,96 @@
+{% extends 'app_layout.html' %}
+
+{% block header_left %}
+<div class="flex items-center gap-3">
+    <h1 class="text-xl font-bold text-textMain tracking-tight">Your Profile</h1>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="px-8 py-6 max-w-3xl mx-auto">
+    <!-- User Info Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-borderSubtle p-8 text-center flex flex-col items-center">
+        <div
+            class="w-24 h-24 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 mb-6 flex items-center justify-center text-4xl font-bold text-white shadow-md border-4 border-white ring-2 ring-gray-100">
+            <span id="profile-initial">U</span>
+        </div>
+
+        <h2 id="profile-username" class="text-2xl font-bold text-textMain mb-1">Loading...</h2>
+        <p id="profile-email" class="text-textMuted text-sm mb-6">loading@example.com</p>
+
+        <div class="px-6 py-2 bg-green-50 text-green-700 rounded-full text-xs font-semibold uppercase tracking-wider">
+            Active Account
+        </div>
+    </div>
+
+    <!-- Instructions / Mock Settings -->
+    <div class="mt-8 bg-surfaceHover rounded-xl p-6 border border-borderSubtle">
+        <h3 class="text-lg font-bold text-textMain mb-2">Account Settings</h3>
+        <p class="text-sm text-textMuted mb-4">Profile editing functions are fully managed via the Django Admin
+            interface for this demo implementation.</p>
+
+        <div class="space-y-4">
+            <div class="flex justify-between items-center bg-white p-4 rounded-lg border border-borderSubtle">
+                <div>
+                    <h4 class="font-semibold text-textMain text-sm">Two-Factor Authentication</h4>
+                    <p class="text-xs text-textMuted">Add extra security to your account.</p>
+                </div>
+                <button
+                    class="px-3 py-1.5 border border-borderSubtle rounded-md text-xs font-medium hover:bg-gray-50 text-textMuted cursor-not-allowed">Configure
+                    (Admin)</button>
+            </div>
+
+            <div class="flex justify-between items-center bg-white p-4 rounded-lg border border-borderSubtle">
+                <div>
+                    <h4 class="font-semibold text-textMain text-sm">Password Management</h4>
+                    <p class="text-xs text-textMuted">Change or reset your password.</p>
+                </div>
+                <button
+                    class="px-3 py-1.5 border border-borderSubtle rounded-md text-xs font-medium hover:bg-gray-50 text-textMuted cursor-not-allowed">Reset
+                    (Admin)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const token = getAuthToken();
+        const u = getAuthUser();
+
+        // If no auth token, redirect to login
+        if (!token) {
+            setTimeout(() => window.location.href = '/', 100);
+            return;
+        }
+
+        // Try to fetch fresh user data from API
+        try {
+            const res = await fetchWithAuth('/users/me/');
+            if (res.ok) {
+                const userData = await res.json();
+                setAuthUser(userData);
+                document.getElementById('profile-username').innerText = userData.username;
+                document.getElementById('profile-email').innerText = userData.email;
+                document.getElementById('profile-initial').innerText = userData.username.charAt(0).toUpperCase();
+            } else {
+                console.error('Failed to fetch user profile:', res.status);
+                // Fallback to cached data
+                if (u) {
+                    document.getElementById('profile-username').innerText = u.username;
+                    document.getElementById('profile-email').innerText = u.email;
+                    document.getElementById('profile-initial').innerText = u.username.charAt(0).toUpperCase();
+                }
+            }
+        } catch (e) {
+            console.error('Error fetching user profile:', e);
+            // Fallback to cached data
+            if (u) {
+                document.getElementById('profile-username').innerText = u.username;
+                document.getElementById('profile-email').innerText = u.email;
+                document.getElementById('profile-initial').innerText = u.username.charAt(0).toUpperCase();
+            }
+        }
+    });
+</script>
+{% endblock %}

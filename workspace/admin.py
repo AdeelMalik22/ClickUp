@@ -1,5 +1,5 @@
 from django.contrib import admin
-from workspace.models import WorkSpace, WorkSpaceMember
+from workspace.models import WorkSpace, WorkSpaceMember, WorkspaceInvitation
 
 
 @admin.register(WorkSpace)
@@ -41,3 +41,10 @@ class WorkSpaceMemberAdmin(admin.ModelAdmin):
         }),
     )
 
+
+@admin.register(WorkspaceInvitation)
+class WorkspaceInvitationAdmin(admin.ModelAdmin):
+    list_display = ['invited_email', 'workspace', 'role', 'invited_by', 'accepted', 'expires_at']
+    list_filter = ['role', 'accepted', 'created_at']
+    search_fields = ['invited_email', 'workspace__name']
+    readonly_fields = ['token', 'created_at', 'expires_at']

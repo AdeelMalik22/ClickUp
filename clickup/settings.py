@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 from datetime import timedelta
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django_filters',
     'core',
     'workspace',
-    'project'
+    'project',
+    'notifications',
 ]
 
 MIDDLEWARE = [
@@ -82,11 +83,11 @@ AUTH_USER_MODEL = 'core.User'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'clickup',   # Replace with your database name
-        'USER': 'myuser',   # Replace with your database username
-        'PASSWORD': '123',  # Replace with your database password
-        'HOST': 'localhost',  # Change if your DB is hosted elsewhere
-        'PORT': '5432',  # Default PostgreSQL port
+        'NAME': os.environ.get('DB_NAME', 'clickup'),
+        'USER': os.environ.get('DB_USER', 'myuser'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', '123'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
 
@@ -126,6 +127,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# Media files (user uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

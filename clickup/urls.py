@@ -17,8 +17,21 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt import views as jwt_views
+from clickup.views_ui import LoginView, RegisterView, OnboardingView, DashboardView, ProjectView, WorkspaceListView, WorkspaceDetailView, WorkspaceMembersView, ProfileView
 
 urlpatterns = [
+    # UI Routes
+    path('', LoginView.as_view(), name='login'),
+    path('register/', RegisterView.as_view(), name='register'),
+    path('onboarding/', OnboardingView.as_view(), name='onboarding'),
+    path('dashboard/', DashboardView.as_view(), name='dashboard'),
+    path('project/<uuid:pk>/', ProjectView.as_view(), name='project_detail'),
+    path('workspaces/', WorkspaceListView.as_view(), name='workspace_list'),
+    path('workspace/<uuid:pk>/', WorkspaceDetailView.as_view(), name='workspace_detail'),
+    path('workspace/<uuid:pk>/members/', WorkspaceMembersView.as_view(), name='workspace_members'),
+    path('profile/', ProfileView.as_view(), name='profile'),
+
+    # API Routes
     path('admin/', admin.site.urls),
     path('api/token/',
          jwt_views.TokenObtainPairView.as_view(),
@@ -26,8 +39,8 @@ urlpatterns = [
     path('api/token/refresh/',
          jwt_views.TokenRefreshView.as_view(),
          name='token_refresh'),
-    path('',include('core.urls')),
-    path("",include('workspace.urls')),
-    path("",include('project.urls'))
+    path("api/", include('core.urls')),
+    path("api/", include('workspace.urls')),
+    path("api/", include('project.urls')),
+    path("api/", include('notifications.urls'))
 ]
-

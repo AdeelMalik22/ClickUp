@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Setup Workspace - ClickUp Clone{% endblock %}
+
+{% block body %}
+<div class="flex flex-1 items-center justify-center p-4 sm:p-0 bg-[#FAFBFC] relative overflow-hidden">
+    <!-- Background Decor -->
+    <div class="absolute inset-0 z-0">
+        <div class="absolute top-0 left-0 right-0 h-96 bg-gradient-to-b from-primary/10 to-transparent"></div>
+    </div>
+
+    <div class="w-full max-w-lg bg-white rounded-2xl shadow-premium p-10 relative z-10 border border-borderSubtle">
+        <div class="text-center mb-10">
+            <div class="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+                <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+            </div>
+            <h1 class="text-3xl font-bold text-textMain mb-3">Name your Workspace</h1>
+            <p class="text-textMuted">This is where your entire team will collaborate and get work done.</p>
+        </div>
+
+        <form id="onboarding-form" class="space-y-6">
+            <div>
+                <label for="name" class="block text-sm font-semibold text-textMain mb-2">Workspace Name</label>
+                <input type="text" id="name" name="name" required 
+                    class="w-full px-4 py-3 bg-surfaceHover border border-borderSubtle rounded-xl focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder-textMuted/50 text-sm"
+                    placeholder="e.g. Acme Corp or Personal Productivity">
+            </div>
+            
+            <div>
+                <label for="description" class="block text-sm font-semibold text-textMain mb-2">What will you use it for?</label>
+                <textarea id="description" name="description" rows="3"
+                    class="w-full px-4 py-3 bg-surfaceHover border border-borderSubtle rounded-xl focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder-textMuted/50 text-sm resize-none"
+                    placeholder="(Optional) Marketing, Engineering, Personal..."></textarea>
+            </div>
+
+            <div class="pt-4 border-t border-borderSubtle mt-8">
+                <button type="submit" id="submit-btn" 
+                    class="w-full bg-primary hover:bg-primaryHover text-white font-medium py-3 rounded-xl transition-all duration-200 shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 active:scale-[0.98]">
+                    Create Workspace
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('onboarding-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('name').value;
+        const description = document.getElementById('description').value;
+        const btn = document.getElementById('submit-btn');
+        
+        btn.disabled = true;
+        btn.innerHTML = `<svg class="animate-spin h-5 w-5 mx-auto text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+        
+        try {
+            const res = await fetchWithAuth('/workspaces/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, description })
+            });
+            
+            const data = await res.json();
+            
+            if (res.ok) {
+                showToast('Workspace created successfully!');
+                setTimeout(() => window.location.href = '/dashboard/', 1000);
+            } else {
+                let errorMsg = 'Failed to create workspace. ';
+                if (typeof data === 'object') {
+                    const firstKey = Object.keys(data)[0];
+                    errorMsg = data[firstKey];
+                }
+                showToast(errorMsg, 'error');
+            }
+        } catch (err) {
+            showToast('A network error occurred.', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerText = 'Create Workspace';
+        }
+    });
+</script>
+{% endblock %}

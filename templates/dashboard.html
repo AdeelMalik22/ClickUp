@@ -1,0 +1,275 @@
+{% extends 'app_layout.html' %}
+
+{% block title %}Home - ClickUp Clone{% endblock %}
+
+{% block header_left %}
+<div class="flex items-center gap-3">
+    <div class="w-8 h-8 rounded bg-gradient-to-tr from-primary to-purple-400 flex items-center justify-center text-white shadow-sm shadow-primary/20">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+    </div>
+    <h1 class="text-xl font-bold text-textMain tracking-tight">Home</h1>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="p-6 md:p-8 max-w-7xl mx-auto w-full">
+    
+    <!-- Greeting & Quick Actions -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+        <div>
+            <h2 id="greeting-title" class="text-2xl font-bold text-textMain">Good afternoon!</h2>
+            <p class="text-textMuted mt-1">Here's an overview of what's happening.</p>
+        </div>
+        
+        <div class="flex gap-3">
+            <button onclick="showToast('Invite Team flow coming soon!', 'info')" class="bg-surface hover:bg-surfaceHover text-textMain font-medium px-4 py-2 rounded-lg border border-borderSubtle transition-all shadow-sm">
+                Invite Team
+            </button>
+            <button onclick="openCreateTaskModal()" class="bg-primary hover:bg-primaryHover text-white font-medium px-4 py-2 rounded-lg transition-all shadow-sm shadow-primary/20 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Create Task
+            </button>
+        </div>
+    </div>
+
+    <!-- Metrics Row -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white p-5 rounded-xl border border-borderSubtle shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow cursor-pointer">
+            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <div>
+                <p class="text-sm text-textMuted font-medium">Completed</p>
+                <p class="text-2xl font-bold text-textMain" id="metric-completed">-</p>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-borderSubtle shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow cursor-pointer">
+            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <div>
+                <p class="text-sm text-textMuted font-medium">Active</p>
+                <p class="text-2xl font-bold text-textMain" id="metric-active">-</p>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-borderSubtle shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow cursor-pointer">
+            <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-primary">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+            </div>
+            <div>
+                <p class="text-sm text-textMuted font-medium">Total Tasks</p>
+                <p class="text-2xl font-bold text-textMain" id="metric-total">-</p>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-borderSubtle shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow cursor-pointer">
+            <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            </div>
+            <div>
+                <p class="text-sm text-textMuted font-medium">Members</p>
+                <p class="text-2xl font-bold text-textMain" id="ws-member-count">-</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Recent Tasks (Main Column) -->
+        <div class="lg:col-span-2">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-textMain">My Work</h3>
+                <button onclick="fetchDashboardTasks()" class="text-sm font-medium text-primary hover:underline">Refresh</button>
+            </div>
+            
+            <div class="bg-white border border-borderSubtle rounded-xl shadow-sm overflow-hidden" id="my-work-container">
+                <!-- Task items injected here -->
+                <div class="p-6 text-center italic text-textMuted text-sm">Loading tasks...</div>
+            </div>
+            
+            <!-- Empty State Block -->
+            <div id="my-work-empty" class="hidden flex-col items-center justify-center py-12 px-4 text-center bg-white border border-borderSubtle rounded-xl mt-4">
+                <svg class="w-24 h-24 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                <h4 class="text-textMain font-semibold">You're all caught up!</h4>
+                <p class="text-sm text-textMuted mt-1">Enjoy the rest of your day, or create a new task.</p>
+                <button onclick="openCreateTaskModal()" class="mt-4 text-sm font-medium text-primary hover:underline">Create a Task</button>
+            </div>
+        </div>
+
+        <!-- Sidebar / Activity -->
+        <div>
+            <h3 class="text-lg font-bold text-textMain mb-4">Workspace Details</h3>
+            
+            <div class="bg-white border border-borderSubtle rounded-xl shadow-sm p-5">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-12 h-12 rounded bg-primary text-white flex items-center justify-center font-bold text-xl shadow-sm" id="detail-ws-initial">W</div>
+                    <div>
+                        <h4 class="font-bold text-textMain" id="detail-ws-name">Workspace</h4>
+                        <p class="text-xs text-textMuted">Created recently</p>
+                    </div>
+                </div>
+                
+                <p class="text-sm text-textMuted mb-4 line-clamp-3" id="detail-ws-desc">
+                    Your central hub for all projects and tasks.
+                </p>
+                
+                <hr class="border-borderSubtle mb-4">
+                
+                <h5 class="text-xs font-bold text-textMuted uppercase tracking-wider mb-3">Recent Spaces</h5>
+                <ul class="space-y-2" id="detail-project-list">
+                    <li class="text-sm text-textMuted py-2 text-center italic">Loading projects...</li>
+                </ul>
+                <button onclick="openCreateProjectModal()" class="w-full mt-4 py-2 border border-borderSubtle rounded-lg text-sm font-medium text-textMain hover:bg-surfaceHover transition-colors">+ New Space</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const PRIORITIES = {
+        'urgent': { label: 'Urgent', badge: 'bg-red-100 text-red-700' },
+        'high': { label: 'High', badge: 'bg-yellow-100 text-yellow-700' },
+        'medium': { label: 'Medium', badge: 'bg-blue-100 text-blue-700' },
+        'low': { label: 'Low', badge: 'bg-gray-100 text-gray-700' }
+    };
+    
+    const STATUSES = {
+        'todo': { label: 'To Do', color: 'bg-gray-200 text-gray-700' },
+        'in_progress': { label: 'In Progress', color: 'bg-blue-100 text-blue-700' },
+        'review': { label: 'Review', color: 'bg-yellow-100 text-yellow-700' },
+        'completed': { label: 'Completed', color: 'bg-green-100 text-green-700' },
+        'on_hold': { label: 'On Hold', color: 'bg-orange-100 text-orange-700' },
+        'cancelled': { label: 'Cancelled', color: 'bg-red-100 text-red-700' }
+    };
+
+    // Listen for workspace data to load
+    document.addEventListener('workspaceLoaded', async (e) => {
+        const ws = e.detail;
+        
+        document.getElementById('ws-member-count').innerText = ws.member_count || 1;
+        document.getElementById('detail-ws-initial').innerText = ws.name.charAt(0).toUpperCase();
+        document.getElementById('detail-ws-name').innerText = ws.name;
+        if(ws.description) {
+            document.getElementById('detail-ws-desc').innerText = ws.description;
+        }
+        
+        // Populate detail projects list
+        try {
+            const res = await fetchWithAuth(`/projects/?workspace=${ws.id}&limit=5`);
+            if (res.ok) {
+                const data = await res.json();
+                const list = document.getElementById('detail-project-list');
+                list.innerHTML = '';
+                
+                if (data.results && data.results.length > 0) {
+                    data.results.forEach(proj => {
+                        list.innerHTML += `
+                            <li>
+                                <a href="/project/${proj.id}/" class="flex items-center text-sm text-textMain hover:text-primary transition-colors">
+                                    <svg class="w-4 h-4 mr-2 text-textMuted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+                                    ${proj.name}
+                                </a>
+                            </li>
+                        `;
+                    });
+                } else {
+                    list.innerHTML = `<li class="text-sm text-textMuted italic">No spaces created yet.</li>`;
+                }
+            }
+        } catch (err) {
+            console.error('Error loading projects:', err);
+        }
+        
+        // Fetch global tasks
+        fetchDashboardTasks();
+    });
+
+    if (window.currentWorkspace) {
+        // If it was already loaded (e.g. fast cache), dispatch immediately
+        document.dispatchEvent(new CustomEvent('workspaceLoaded', { detail: window.currentWorkspace }));
+    }
+    
+    // Fallback: If workspace hasn't loaded after 2 seconds, load data anyway
+    setTimeout(() => {
+        if (!window.currentWorkspace) {
+            console.warn('Workspace not loaded, attempting direct load...');
+            window.loadWorkspaceSidebarData(); // Trigger sidebar load
+            setTimeout(() => {
+                if (window.currentWorkspace) {
+                    document.dispatchEvent(new CustomEvent('workspaceLoaded', { detail: window.currentWorkspace }));
+                } else {
+                    // Last resort: load tasks anyway
+                    fetchDashboardTasks();
+                }
+            }, 500);
+        }
+    }, 2000);
+
+    async function fetchDashboardTasks() {
+        try {
+            const res = await fetchWithAuth(`/tasks/?limit=20`);
+            if (res.ok) {
+                const data = await res.json();
+                const container = document.getElementById('my-work-container');
+                const empty = document.getElementById('my-work-empty');
+                
+                const tasks = data.results || [];
+                
+                // Update metrics
+                document.getElementById('metric-total').innerText = tasks.length;
+                document.getElementById('metric-completed').innerText = tasks.filter(t => t.status === 'completed').length;
+                document.getElementById('metric-active').innerText = tasks.filter(t => t.status !== 'completed' && t.status !== 'cancelled').length;
+                
+                if (tasks.length > 0) {
+                    container.innerHTML = '';
+                    empty.classList.add('hidden');
+                    container.classList.remove('hidden');
+                    
+                    tasks.slice(0, 10).forEach(task => { // Show top 10
+                        const prio = PRIORITIES[task.priority] || {label: 'Normal', badge: 'bg-gray-100 text-gray-700'};
+                        const statusDef = STATUSES[task.status] || {label: 'Unknown', color: 'bg-gray-100 text-gray-700'};
+                        
+                        container.innerHTML += `
+                            <div class="flex items-center gap-4 p-4 border-b border-borderSubtle hover:bg-surfaceHover transition-colors cursor-pointer group" onclick="window.location.href='/project/${task.project}/'">
+                                <div class="w-4 h-4 rounded border border-gray-300 flex items-center justify-center shrink-0 group-hover:border-primary transition-colors"></div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-textMain truncate">${task.title}</p>
+                                    <div class="flex items-center gap-2 mt-0.5">
+                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide ${statusDef.color}">${statusDef.label}</span>
+                                        <p class="text-xs text-textMuted">Created ${new Date(task.created_at).toLocaleDateString()}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${prio.badge}">${prio.label}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    container.classList.add('hidden');
+                    empty.classList.remove('hidden');
+                }
+            }
+        } catch (err) {
+            console.error("Error loading tasks", err);
+        }
+    }
+
+    // Refresh dashboard tasks when a new one is created globally
+    window.addEventListener('taskCreated', () => {
+        fetchDashboardTasks();
+    });
+
+    // Refresh projects when a new one is created
+    window.addEventListener('projectCreated', () => {
+        if (window.currentWorkspace) {
+            document.dispatchEvent(new CustomEvent('workspaceLoaded', { detail: window.currentWorkspace }));
+        }
+    });
+
+    // Set greeting based on time
+    const hour = new Date().getHours();
+    let greeting = "Good evening!";
+    if (hour < 12) greeting = "Good morning!";
+    else if (hour < 17) greeting = "Good afternoon!";
+    document.getElementById('greeting-title').innerText = greeting;
+</script>
+{% endblock %}
