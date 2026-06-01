@@ -1,8 +1,9 @@
 from rest_framework import serializers
-from workspace.models import WorkSpace, WorkSpaceMember, WorkspaceInvitation
+from workspace.models import WorkSpace, WorkSpaceMember, WorkspaceInvitation, Department, Folder, SpaceItem
 
 
 class WorkspaceMemberSerializer(serializers.ModelSerializer):
+    """Serializer for WorkSpaceMember model"""
     user_name = serializers.CharField(source='user.username', read_only=True)
     user_id = serializers.CharField(source='user.id', read_only=True)
     user_email = serializers.CharField(source='user.email', read_only=True)
@@ -11,6 +12,41 @@ class WorkspaceMemberSerializer(serializers.ModelSerializer):
         model = WorkSpaceMember
         fields = ['id', 'user', 'user_name', 'user_id', 'user_email', 'role', 'joined_at']
         read_only_fields = ['id', 'joined_at']
+
+
+class DepartmentSerializer(serializers.ModelSerializer):
+    """Serializer for Department model"""
+    workspace_name = serializers.CharField(source='workspace.name', read_only=True)
+    created_by_username = serializers.CharField(source='created_by.username', read_only=True)
+
+    class Meta:
+        model = Department
+        fields = ['id', 'name', 'description', 'workspace', 'workspace_name', 'created_by', 'created_by_username', 'icon_color', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+class FolderSerializer(serializers.ModelSerializer):
+    """Serializer for Folder model"""
+    workspace_name = serializers.CharField(source='workspace.name', read_only=True)
+    created_by_username = serializers.CharField(source='created_by.username', read_only=True)
+    parent_folder_name = serializers.CharField(source='parent_folder.name', read_only=True, required=False)
+
+    class Meta:
+        model = Folder
+        fields = ['id', 'name', 'description', 'workspace', 'workspace_name', 'parent_folder', 'parent_folder_name', 'created_by', 'created_by_username', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+class SpaceItemSerializer(serializers.ModelSerializer):
+    """Serializer for SpaceItem model"""
+    workspace_name = serializers.CharField(source='workspace.name', read_only=True)
+    created_by_username = serializers.CharField(source='created_by.username', read_only=True)
+
+    class Meta:
+        model = SpaceItem
+        fields = ['id', 'name', 'description', 'workspace', 'workspace_name', 'item_type', 'created_by', 'created_by_username', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
 
 
 class WorkspaceSerializer(serializers.ModelSerializer):

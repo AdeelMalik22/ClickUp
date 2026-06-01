@@ -4,7 +4,9 @@ from django.utils import timezone
 from datetime import timedelta
 from core.models import User
 
+
 class WorkSpace(models.Model):
+    """Workspace model for organizing projects and team collaboration"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
@@ -20,6 +22,78 @@ class WorkSpace(models.Model):
         indexes = [
             models.Index(fields=['created_by', '-created_at']),
         ]
+
+
+class Department(models.Model):
+    """Organization department within a workspace"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    workspace = models.ForeignKey(WorkSpace, on_delete=models.CASCADE, related_name='departments')
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_departments')
+    icon_color = models.CharField(max_length=7, default='#6366f1')  # hex color
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.workspace.name})"
+
+    class Meta:
+        ordering = ['name']
+        unique_together = ('name', 'workspace')
+        indexes = [
+            models.Index(fields=['workspace', 'name']),
+        ]
+
+
+class Folder(models.Model):
+    """Folder for organizing projects within workspace"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    workspace = models.ForeignKey(WorkSpace, on_delete=models.CASCADE, related_name='folders')
+    parent_folder = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='subfolders')
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_folders')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.name}"
+
+    class Meta:
+        ordering = ['name']
+        unique_together = ('name', 'workspace', 'parent_folder')
+        indexes = [
+            models.Index(fields=['workspace', 'parent_folder']),
+        ]
+
+
+class SpaceItem(models.Model):
+    """Flexible collection of tasks (backlog, sprint, list, collection)"""
+    class ItemTypeChoices(models.TextChoices):
+        BACKLOG = 'backlog', 'Backlog'
+        SPRINT = 'sprint', 'Sprint'
+        LIST = 'list', 'List'
+        COLLECTION = 'collection', 'Collection'
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    workspace = models.ForeignKey(WorkSpace, on_delete=models.CASCADE, related_name='space_items')
+    item_type = models.CharField(max_length=20, choices=ItemTypeChoices, default='collection')
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_space_items')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+         return f"{self.name} ({self.get_item_type_display()})"
+
+    class Meta:
+         ordering = ['name']
+         indexes = [
+             models.Index(fields=['workspace', 'item_type']),
+         ]
+
 
 
 class WorkSpaceMember(models.Model):
