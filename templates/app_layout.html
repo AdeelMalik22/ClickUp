@@ -140,58 +140,59 @@
         setTimeout(() => { document.getElementById('slide-over-container').classList.add('hidden'); panel.innerHTML = ''; }, 300);
     };
 
-    window.loadWorkspaceSidebarData = async function () {
-        try {
-            const res = await fetchWithAuth('/workspaces/');
-            if (res.ok) {
-                const data = await res.json();
-                if (data.results && data.results.length > 0) {
-                    currentWorkspace = data.results[0];
-                    window.currentWorkspace = currentWorkspace;
-                    document.getElementById('active-workspace-name').innerText = currentWorkspace.name;
-                    document.getElementById('workspace-initial').innerText = currentWorkspace.name.charAt(0).toUpperCase();
-                    window.loadProjects(currentWorkspace.id);
-                    document.dispatchEvent(new CustomEvent('workspaceLoaded', { detail: currentWorkspace }));
-                } else {
-                    console.warn('No workspaces found for user');
-                    document.getElementById('active-workspace-name').innerText = 'No Workspace';
-                }
-            } else {
-                console.error('Failed to fetch workspaces:', res.status);
-            }
-        } catch (e) { console.error('Error loading workspaces:', e); }
-    }
+     window.loadWorkspaceSidebarData = async function () {
+         try {
+             const res = await fetchWithAuth('/api/workspaces/');
+             if (res.ok) {
+                 const data = await res.json();
+                 if (data.results && data.results.length > 0) {
+                     currentWorkspace = data.results[0];
+                     window.currentWorkspace = currentWorkspace;
+                     document.getElementById('active-workspace-name').innerText = currentWorkspace.name;
+                     document.getElementById('workspace-initial').innerText = currentWorkspace.name.charAt(0).toUpperCase();
+                     window.loadProjects(currentWorkspace.id);
+                     // IMPORTANT: Dispatch event after setting window.currentWorkspace
+                     document.dispatchEvent(new CustomEvent('workspaceLoaded', { detail: currentWorkspace }));
+                 } else {
+                     console.warn('No workspaces found for user');
+                     document.getElementById('active-workspace-name').innerText = 'No Workspace';
+                 }
+             } else {
+                 console.error('Failed to fetch workspaces:', res.status);
+             }
+         } catch (e) { console.error('Error loading workspaces:', e); }
+     }
 
-    window.loadProjects = async function (wsId) {
-        try {
-            const res = await fetchWithAuth(`/projects/?workspace=${wsId}`);
-            if (res.ok) {
-                const projects = (await res.json()).results || [];
-                const list = document.getElementById('project-list');
-                list.innerHTML = projects.length === 0 ? '<div class="px-2 py-2 text-xs italic">No spaces</div>' :
-                    projects.map(p => `
-                        <a href="/project/${p.id}/" class="flex items-center px-2 py-1.5 text-sm rounded-md hover:bg-sidebarHover hover:text-white transition-colors truncate">
-                            <span class="w-1.5 h-1.5 rounded-full bg-blue-500 mr-3"></span>
-                            <span class="truncate">${p.name}</span>
-                        </a>`).join('');
-            }
-        } catch (e) { console.error(e); }
-    };
+     window.loadProjects = async function (wsId) {
+         try {
+             const res = await fetchWithAuth(`/api/projects/?workspace=${wsId}`);
+             if (res.ok) {
+                 const projects = (await res.json()).results || [];
+                 const list = document.getElementById('project-list');
+                 list.innerHTML = projects.length === 0 ? '<div class="px-2 py-2 text-xs italic">No spaces</div>' :
+                     projects.map(p => `
+                         <a href="/project/${p.id}/" class="flex items-center px-2 py-1.5 text-sm rounded-md hover:bg-sidebarHover hover:text-white transition-colors truncate">
+                             <span class="w-1.5 h-1.5 rounded-full bg-blue-500 mr-3"></span>
+                             <span class="truncate">${p.name}</span>
+                         </a>`).join('');
+             }
+         } catch (e) { console.error(e); }
+     };
 
-    async function fetchUserData() {
-        try {
-            const res = await fetchWithAuth('/users/me/');
-            if (res.ok) {
-                const user = await res.json();
-                console.log('User data fetched:', user);
-                setAuthUser(user);
-                document.getElementById('user-name').innerText = user.username;
-                document.getElementById('user-initial').innerText = user.username.charAt(0).toUpperCase();
-            } else {
-                console.error('Failed to fetch user data:', res.status, await res.text());
-            }
-        } catch (e) { console.error('Error fetching user data:', e); }
-    }
+     async function fetchUserData() {
+         try {
+             const res = await fetchWithAuth('/api/users/me/');
+             if (res.ok) {
+                 const user = await res.json();
+                 console.log('User data fetched:', user);
+                 setAuthUser(user);
+                 document.getElementById('user-name').innerText = user.username;
+                 document.getElementById('user-initial').innerText = user.username.charAt(0).toUpperCase();
+             } else {
+                 console.error('Failed to fetch user data:', res.status, await res.text());
+             }
+         } catch (e) { console.error('Error fetching user data:', e); }
+     }
 
     window.openCreateProjectModal = () => document.getElementById('modal-create-project').classList.remove('hidden');
     window.closeCreateProjectModal = () => document.getElementById('modal-create-project').classList.add('hidden');
@@ -212,33 +213,33 @@
     };
     window.closeCreateTaskModal = () => document.getElementById('modal-create-task').classList.add('hidden');
 
-    document.getElementById('form-create-project').onsubmit = async (e) => {
-        e.preventDefault();
-        const res = await fetchWithAuth('/projects/', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({name: document.getElementById('project-name').value, workspace: currentWorkspace.id})
-        });
-        if (res.ok) {
-            const projectData = await res.json();
-            showToast('Project created');
-            closeCreateProjectModal();
-            window.loadProjects(currentWorkspace.id);
-            // Dispatch event for dashboard to refresh
-            window.dispatchEvent(new CustomEvent('projectCreated', { detail: projectData }));
-        }
-    };
+     document.getElementById('form-create-project').onsubmit = async (e) => {
+         e.preventDefault();
+         const res = await fetchWithAuth('/api/projects/', {
+             method: 'POST',
+             headers: {'Content-Type': 'application/json'},
+             body: JSON.stringify({name: document.getElementById('project-name').value, workspace: currentWorkspace.id})
+         });
+         if (res.ok) {
+             const projectData = await res.json();
+             showToast('Project created');
+             closeCreateProjectModal();
+             window.loadProjects(currentWorkspace.id);
+             // Dispatch event for dashboard to refresh
+             window.dispatchEvent(new CustomEvent('projectCreated', { detail: projectData }));
+         }
+     };
 
-    // Notifications
-    window.toggleNotifications = () => { document.getElementById('notifications-dropdown').classList.toggle('hidden'); loadNotifications(); };
-    async function loadNotifications() {
-        const res = await fetchWithAuth('/notifications/');
-        if (res.ok) {
-            const data = await res.json();
-            const list = document.getElementById('notifications-list');
-            list.innerHTML = (data.results || []).map(n => `<div class="p-3 border-b hover:bg-surfaceHover text-xs">${n.message}</div>`).join('') || '<div class="p-4 italic">No notifications</div>';
-        }
-    }
+     // Notifications
+     window.toggleNotifications = () => { document.getElementById('notifications-dropdown').classList.toggle('hidden'); loadNotifications(); };
+     async function loadNotifications() {
+         const res = await fetchWithAuth('/api/notifications/');
+         if (res.ok) {
+             const data = await res.json();
+             const list = document.getElementById('notifications-list');
+             list.innerHTML = (data.results || []).map(n => `<div class="p-3 border-b hover:bg-surfaceHover text-xs">${n.message}</div>`).join('') || '<div class="p-4 italic">No notifications</div>';
+         }
+     }
 
     window.addEventListener('DOMContentLoaded', () => {
         console.log('App layout DOMContentLoaded fired');

@@ -131,12 +131,17 @@
             if (!options.headers) options.headers = {};
             if (token) options.headers['Authorization'] = `Bearer ${token}`;
 
-            const response = await fetch(url, options);
-            if (response.status === 401 && token) {
-                clearAuth();
-                window.location.href = '/';
+            try {
+                const response = await fetch(url, options);
+                if (response.status === 401 && token) {
+                    clearAuth();
+                    window.location.href = '/';
+                }
+                return response;
+            } catch (error) {
+                console.error(`Fetch error for ${url}:`, error);
+                throw error;
             }
-            return response;
         }
 
         // Global Toast Notification System

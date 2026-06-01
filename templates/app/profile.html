@@ -7,9 +7,9 @@
 {% endblock %}
 
 {% block content %}
-<div class="px-8 py-6 max-w-3xl mx-auto">
+<div class="px-8 py-6 max-w-4xl mx-auto">
     <!-- User Info Card -->
-    <div class="bg-white rounded-xl shadow-sm border border-borderSubtle p-8 text-center flex flex-col items-center">
+    <div class="bg-white rounded-xl shadow-sm border border-borderSubtle p-8 text-center flex flex-col items-center mb-8">
         <div
             class="w-24 h-24 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 mb-6 flex items-center justify-center text-4xl font-bold text-white shadow-md border-4 border-white ring-2 ring-gray-100">
             <span id="profile-initial">U</span>
@@ -23,13 +23,72 @@
         </div>
     </div>
 
-    <!-- Instructions / Mock Settings -->
-    <div class="mt-8 bg-surfaceHover rounded-xl p-6 border border-borderSubtle">
+    <!-- Profile Details Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Basic Information -->
+        <div class="bg-white rounded-xl shadow-sm border border-borderSubtle p-6">
+            <h3 class="text-lg font-bold text-textMain mb-4">Basic Information</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-semibold text-textMuted uppercase">Full Name</label>
+                    <p id="profile-name" class="text-sm text-textMain mt-1">-</p>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-textMuted uppercase">Email</label>
+                    <p id="profile-email-display" class="text-sm text-textMain mt-1">-</p>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-textMuted uppercase">Phone</label>
+                    <p id="profile-phone" class="text-sm text-textMain mt-1">-</p>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-textMuted uppercase">Timezone</label>
+                    <p id="profile-timezone" class="text-sm text-textMain mt-1">UTC</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Work Information -->
+        <div class="bg-white rounded-xl shadow-sm border border-borderSubtle p-6">
+            <h3 class="text-lg font-bold text-textMain mb-4">Work Information</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-semibold text-textMuted uppercase">Position</label>
+                    <p id="profile-position" class="text-sm text-textMain mt-1">-</p>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-textMuted uppercase">Department</label>
+                    <p id="profile-department" class="text-sm text-textMain mt-1">-</p>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-textMuted uppercase">Skills</label>
+                    <p id="profile-skills" class="text-sm text-textMain mt-1">-</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bio Section -->
+    <div class="bg-white rounded-xl shadow-sm border border-borderSubtle p-6 mb-8">
+        <h3 class="text-lg font-bold text-textMain mb-4">Bio</h3>
+        <p id="profile-bio" class="text-sm text-textMuted leading-relaxed">No bio added yet.</p>
+    </div>
+
+    <!-- Account Settings -->
+    <div class="bg-surfaceHover rounded-xl p-6 border border-borderSubtle">
         <h3 class="text-lg font-bold text-textMain mb-2">Account Settings</h3>
         <p class="text-sm text-textMuted mb-4">Profile editing functions are fully managed via the Django Admin
             interface for this demo implementation.</p>
 
         <div class="space-y-4">
+            <div class="flex justify-between items-center bg-white p-4 rounded-lg border border-borderSubtle">
+                <div>
+                    <h4 class="font-semibold text-textMain text-sm">Email Notifications</h4>
+                    <p class="text-xs text-textMuted">Receive email updates on account activity.</p>
+                </div>
+                <div id="email-notifications-status" class="px-3 py-1.5 border border-green-200 rounded-md text-xs font-medium bg-green-50 text-green-700">Enabled</div>
+            </div>
+
             <div class="flex justify-between items-center bg-white p-4 rounded-lg border border-borderSubtle">
                 <div>
                     <h4 class="font-semibold text-textMain text-sm">Two-Factor Authentication</h4>
@@ -64,30 +123,59 @@
             return;
         }
 
-        // Try to fetch fresh user data from API
+        // Try to fetch fresh user data and profile from API
         try {
-            const res = await fetchWithAuth('/users/me/');
+            const res = await fetchWithAuth('/api/users/me/');
             if (res.ok) {
                 const userData = await res.json();
                 setAuthUser(userData);
                 document.getElementById('profile-username').innerText = userData.username;
                 document.getElementById('profile-email').innerText = userData.email;
+                document.getElementById('profile-email-display').innerText = userData.email;
+                document.getElementById('profile-name').innerText = userData.name || '-';
                 document.getElementById('profile-initial').innerText = userData.username.charAt(0).toUpperCase();
             } else {
-                console.error('Failed to fetch user profile:', res.status);
+                console.error('Failed to fetch user data:', res.status);
                 // Fallback to cached data
                 if (u) {
                     document.getElementById('profile-username').innerText = u.username;
                     document.getElementById('profile-email').innerText = u.email;
+                    document.getElementById('profile-email-display').innerText = u.email;
+                    document.getElementById('profile-name').innerText = u.name || '-';
                     document.getElementById('profile-initial').innerText = u.username.charAt(0).toUpperCase();
                 }
             }
+
+            // Fetch user profile separately
+            const profileRes = await fetchWithAuth('/api/profiles/my_profile/');
+            if (profileRes.ok) {
+                const profileData = await profileRes.json();
+                document.getElementById('profile-phone').innerText = profileData.phone || '-';
+                document.getElementById('profile-position').innerText = profileData.position || '-';
+                document.getElementById('profile-department').innerText = profileData.department || '-';
+                document.getElementById('profile-skills').innerText = profileData.skills || '-';
+                document.getElementById('profile-timezone').innerText = profileData.timezone || 'UTC';
+                document.getElementById('profile-bio').innerText = profileData.bio || 'No bio added yet.';
+
+                // Update email notifications status
+                if (profileData.email_notifications_enabled) {
+                    document.getElementById('email-notifications-status').textContent = 'Enabled';
+                    document.getElementById('email-notifications-status').className = 'px-3 py-1.5 border border-green-200 rounded-md text-xs font-medium bg-green-50 text-green-700';
+                } else {
+                    document.getElementById('email-notifications-status').textContent = 'Disabled';
+                    document.getElementById('email-notifications-status').className = 'px-3 py-1.5 border border-gray-200 rounded-md text-xs font-medium bg-gray-50 text-gray-700';
+                }
+            } else {
+                console.warn('Could not fetch user profile:', profileRes.status);
+            }
         } catch (e) {
-            console.error('Error fetching user profile:', e);
-            // Fallback to cached data
+            console.error('Error fetching profile:', e);
+            // Fallback to cached user data
             if (u) {
                 document.getElementById('profile-username').innerText = u.username;
                 document.getElementById('profile-email').innerText = u.email;
+                document.getElementById('profile-email-display').innerText = u.email;
+                document.getElementById('profile-name').innerText = u.name || '-';
                 document.getElementById('profile-initial').innerText = u.username.charAt(0).toUpperCase();
             }
         }

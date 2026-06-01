@@ -153,7 +153,7 @@
         
         // Populate detail projects list
         try {
-            const res = await fetchWithAuth(`/projects/?workspace=${ws.id}&limit=5`);
+            const res = await fetchWithAuth(`/api/projects/?workspace=${ws.id}&limit=5`);
             if (res.ok) {
                 const data = await res.json();
                 const list = document.getElementById('detail-project-list');
@@ -205,7 +205,7 @@
 
     async function fetchDashboardTasks() {
         try {
-            const res = await fetchWithAuth(`/tasks/?limit=20`);
+            const res = await fetchWithAuth(`/api/tasks/?limit=20`);
             if (res.ok) {
                 const data = await res.json();
                 const container = document.getElementById('my-work-container');
