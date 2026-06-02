@@ -10,21 +10,32 @@
 <div class="px-8 py-6 max-w-4xl mx-auto">
     <!-- User Info Card -->
     <div class="bg-white rounded-xl shadow-sm border border-borderSubtle p-8 text-center flex flex-col items-center mb-8">
-        <div
-            class="w-24 h-24 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 mb-6 flex items-center justify-center text-4xl font-bold text-white shadow-md border-4 border-white ring-2 ring-gray-100">
-            <span id="profile-initial">U</span>
+        <div class="relative mb-6 group">
+            <div id="profile-avatar-container" class="w-24 h-24 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-4xl font-bold text-white shadow-md border-4 border-white ring-2 ring-gray-100 overflow-hidden relative">
+                <span id="profile-initial">U</span>
+                <img id="profile-avatar-img" src="" class="hidden absolute inset-0 w-full h-full object-cover">
+            </div>
+            <label for="avatar-upload" class="absolute bottom-0 right-0 bg-white p-1.5 rounded-full shadow-md border border-gray-200 text-gray-600 hover:text-blue-600 hover:border-blue-300 transition-colors z-10 group-hover:scale-110 cursor-pointer" title="Update Profile Picture">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+            </label>
+            <input type="file" id="avatar-upload" class="hidden" accept="image/*" onchange="uploadAvatarFile(this)">
         </div>
 
         <h2 id="profile-username" class="text-2xl font-bold text-textMain mb-1">Loading...</h2>
         <p id="profile-email" class="text-textMuted text-sm mb-6">loading@example.com</p>
 
-        <div class="px-6 py-2 bg-green-50 text-green-700 rounded-full text-xs font-semibold uppercase tracking-wider">
+        <div class="px-6 py-2 bg-green-50 text-green-700 rounded-full text-xs font-semibold uppercase tracking-wider mb-6">
             Active Account
         </div>
     </div>
 
-    <!-- Profile Details Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <div id="profile-display-section" class="cursor-pointer group relative transition-all duration-200 hover:ring-2 hover:ring-primary hover:ring-offset-2 rounded-xl" title="Click anywhere to edit your profile">
+        <!-- Hover indicator -->
+        <div class="absolute -top-3 -right-3 bg-primary text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+        </div>
+        <!-- Profile Details Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         <!-- Basic Information -->
         <div class="bg-white rounded-xl shadow-sm border border-borderSubtle p-6">
             <h3 class="text-lg font-bold text-textMain mb-4">Basic Information</h3>
@@ -69,21 +80,16 @@
     </div>
 
     <!-- Bio Section -->
-    <div class="bg-white rounded-xl shadow-sm border border-borderSubtle p-6 mb-8">
-        <h3 class="text-lg font-bold text-textMain mb-4">Bio</h3>
-        <p id="profile-bio" class="text-sm text-textMuted leading-relaxed">No bio added yet.</p>
+        <div class="bg-white rounded-xl shadow-sm border border-borderSubtle p-6 mb-8">
+            <h3 class="text-lg font-bold text-textMain mb-4">Bio</h3>
+            <p id="profile-bio" class="text-sm text-textMuted leading-relaxed">No bio added yet.</p>
+        </div>
     </div>
 
     <!-- Edit Profile Section -->
-    <div class="bg-white rounded-xl shadow-sm border border-borderSubtle p-6 mb-8">
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="text-lg font-bold text-textMain">Edit Profile</h3>
-            <button id="toggle-edit-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-                Edit Profile
-            </button>
-        </div>
-
-        <form id="edit-profile-form" class="space-y-6 hidden">
+    <div id="profile-edit-section" class="bg-white rounded-xl shadow-sm border border-borderSubtle p-6 mb-8 hidden">
+        <h3 class="text-lg font-bold text-textMain mb-6 border-b border-borderSubtle pb-4">Edit Profile</h3>
+        <form id="edit-profile-form" class="space-y-6">
             <!-- Basic Information Section -->
             <div>
                 <h4 class="text-sm font-semibold text-textMain mb-4">Basic Information</h4>
@@ -113,17 +119,7 @@
             <!-- Work Information Section -->
             <div>
                 <h4 class="text-sm font-semibold text-textMain mb-4">Work Information</h4>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-textMuted uppercase mb-2">Position</label>
-                        <input type="text" id="edit-position" class="w-full px-3 py-2 border border-borderSubtle rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., Senior Developer">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-textMuted uppercase mb-2">Department</label>
-                        <input type="text" id="edit-department" class="w-full px-3 py-2 border border-borderSubtle rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., Engineering">
-                    </div>
-                </div>
-                <div class="mt-4">
+                <div>
                     <label class="block text-xs font-semibold text-textMuted uppercase mb-2">Skills</label>
                     <input type="text" id="edit-skills" class="w-full px-3 py-2 border border-borderSubtle rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., Python, Django, React (comma-separated)">
                 </div>
@@ -231,6 +227,13 @@
                 document.getElementById('profile-timezone').innerText = profileData.timezone || 'UTC';
                 document.getElementById('profile-bio').innerText = profileData.bio || 'No bio added yet.';
 
+                if (profileData.avatar) {
+                    document.getElementById('profile-initial').classList.add('hidden');
+                    const img = document.getElementById('profile-avatar-img');
+                    img.src = profileData.avatar;
+                    img.classList.remove('hidden');
+                }
+
                 // Update email notifications status
                 if (profileData.email_notifications_enabled) {
                     document.getElementById('email-notifications-status').textContent = 'Enabled';
@@ -258,42 +261,60 @@
         setupEditFormHandlers();
     });
 
+    async function uploadAvatarFile(input) {
+        if (!currentProfileData || !input.files || input.files.length === 0) return;
+        const file = input.files[0];
+        const formData = new FormData();
+        formData.append('avatar', file);
+
+        try {
+            const res = await fetchWithAuth(`/api/profiles/${currentProfileData.id}/upload_avatar/`, {
+                method: 'POST',
+                // FormData automatically sets Content-Type to multipart/form-data with boundary
+                body: formData
+            });
+            if (res.ok) {
+                const data = await res.json();
+                document.getElementById('profile-initial').classList.add('hidden');
+                const img = document.getElementById('profile-avatar-img');
+                img.src = data.avatar;
+                img.classList.remove('hidden');
+                showToast('Profile picture updated successfully!');
+            } else {
+                showToast('Failed to update profile picture.', 'error');
+            }
+        } catch(e) {
+            showToast('Error updating profile picture.', 'error');
+        }
+    }
+
     function setupEditFormHandlers() {
-        const toggleEditBtn = document.getElementById('toggle-edit-btn');
-        const editForm = document.getElementById('edit-profile-form');
+        const displaySection = document.getElementById('profile-display-section');
+        const editSection = document.getElementById('profile-edit-section');
         const cancelEditBtn = document.getElementById('cancel-edit-btn');
         const editFormElement = document.querySelector('form#edit-profile-form');
 
-        // Toggle edit mode
-        toggleEditBtn.addEventListener('click', () => {
-            if (editForm.classList.contains('hidden')) {
+        // Enter edit mode on click
+        displaySection.addEventListener('click', () => {
+            if (editSection.classList.contains('hidden')) {
                 // Show edit form and populate with current data
-                editForm.classList.remove('hidden');
-                toggleEditBtn.textContent = 'Cancel';
-                toggleEditBtn.className = 'px-4 py-2 bg-gray-400 text-white rounded-lg text-sm font-medium hover:bg-gray-500 transition-colors';
+                editSection.classList.remove('hidden');
+                displaySection.classList.add('hidden');
 
                 // Populate form fields
                 if (currentProfileData) {
                     document.getElementById('edit-phone').value = currentProfileData.phone || '';
-                    document.getElementById('edit-position').value = currentProfileData.position || '';
-                    document.getElementById('edit-department').value = currentProfileData.department || '';
                     document.getElementById('edit-skills').value = currentProfileData.skills || '';
                     document.getElementById('edit-timezone').value = currentProfileData.timezone || 'UTC';
                     document.getElementById('edit-bio').value = currentProfileData.bio || '';
                 }
-            } else {
-                // Hide edit form
-                editForm.classList.add('hidden');
-                toggleEditBtn.textContent = 'Edit Profile';
-                toggleEditBtn.className = 'px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors';
             }
         });
 
         // Cancel edit
         cancelEditBtn.addEventListener('click', () => {
-            editForm.classList.add('hidden');
-            toggleEditBtn.textContent = 'Edit Profile';
-            toggleEditBtn.className = 'px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors';
+            editSection.classList.add('hidden');
+            displaySection.classList.remove('hidden');
         });
 
         // Submit edit form
@@ -302,8 +323,6 @@
 
             const updateData = {
                 phone: document.getElementById('edit-phone').value || null,
-                position: document.getElementById('edit-position').value || null,
-                department: document.getElementById('edit-department').value || null,
                 skills: document.getElementById('edit-skills').value || null,
                 timezone: document.getElementById('edit-timezone').value,
                 bio: document.getElementById('edit-bio').value || null,
@@ -331,9 +350,8 @@
                     document.getElementById('profile-bio').innerText = updatedProfile.bio || 'No bio added yet.';
 
                     // Hide form and show success message
-                    editForm.classList.add('hidden');
-                    toggleEditBtn.textContent = 'Edit Profile';
-                    toggleEditBtn.className = 'px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors';
+                    editSection.classList.add('hidden');
+                    displaySection.classList.remove('hidden');
 
                     showToast('Profile updated successfully!');
                 } else {

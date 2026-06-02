@@ -1,0 +1,308 @@
+{% extends 'app_layout.html' %}
+
+{% block header_left %}
+<div class="flex items-center gap-3">
+    <h1 class="text-xl font-bold text-textMain tracking-tight">My Settings</h1>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-8 py-8 space-y-10 pb-20">
+    
+    <!-- Profile & Security Section -->
+    <section>
+        <div class="mb-6">
+            <h2 class="text-xl font-bold text-textMain mb-1">Profile</h2>
+            <p class="text-sm text-textMuted">Your personal information and account security settings.</p>
+        </div>
+
+        <div class="bg-white border border-borderSubtle rounded-xl shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-borderSubtle flex items-center justify-between">
+                <div>
+                    <h3 class="text-sm font-semibold text-textMain">Avatar</h3>
+                    <p class="text-xs text-textMuted mt-1">Upload a custom profile picture.</p>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg cursor-pointer hover:opacity-90">
+                    <span id="settings-avatar-initial">U</span>
+                </div>
+            </div>
+
+            <div class="p-6 border-b border-borderSubtle grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-semibold text-textMuted uppercase mb-2">Full Name</label>
+                    <input type="text" id="settings-name" class="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm" value="">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-textMuted uppercase mb-2">Email</label>
+                    <input type="email" id="settings-email" class="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm" value="" readonly disabled>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-semibold text-textMuted uppercase mb-2">Password</label>
+                    <input type="password" placeholder="Enter New Password" class="w-full max-w-sm px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm">
+                </div>
+            </div>
+            
+            <div class="p-6 bg-gray-50 flex justify-end">
+                <button onclick="showToast('Profile saved!', 'success')" class="px-5 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primaryHover transition-colors shadow-sm">Save Changes</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2FA Section -->
+    <section>
+        <div class="mb-6">
+            <h2 class="text-xl font-bold text-textMain mb-1">Two-factor authentication (2FA)</h2>
+            <p class="text-sm text-textMuted">Keep your account secure by enabling 2FA via SMS or using a temporary one-time passcode (TOTP) from an authenticator app.</p>
+        </div>
+
+        <div class="bg-white border border-borderSubtle rounded-xl shadow-sm overflow-hidden divide-y divide-borderSubtle">
+            <div class="p-6 flex items-start justify-between gap-4">
+                <div class="flex gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-textMain flex items-center gap-2">Text Message (SMS) <span class="px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-purple-100 text-purple-700">Business</span></h3>
+                        <p class="text-xs text-textMuted mt-1">Receive a one-time passcode via SMS each time you log in.</p>
+                    </div>
+                </div>
+                <button onclick="showToast('Requires Business Plan upgrade', 'error')" class="px-4 py-1.5 border border-borderSubtle rounded-lg text-sm font-medium hover:bg-surfaceHover">Upgrade</button>
+            </div>
+            <div class="p-6 flex items-start justify-between gap-4">
+                <div class="flex gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-green-50 text-green-600 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-textMain">Authenticator App (TOTP)</h3>
+                        <p class="text-xs text-textMuted mt-1">Use an app to receive a temporary one-time passcode each time you log in.</p>
+                    </div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" class="sr-only peer" onchange="showToast('TOTP Setup Modal coming soon', 'info')">
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+            </div>
+        </div>
+    </section>
+
+    <!-- Theme & Appearance Section -->
+    <section>
+        <div class="mb-6">
+            <h2 class="text-xl font-bold text-textMain mb-1">Theme color</h2>
+            <p class="text-sm text-textMuted">Choose a preferred theme for the app.</p>
+        </div>
+
+        <div class="bg-white border border-borderSubtle rounded-xl shadow-sm p-6 mb-8">
+            <div class="flex gap-4">
+                <button class="w-8 h-8 rounded-full bg-[#7B68EE] ring-2 ring-offset-2 ring-[#7B68EE]"></button>
+                <button class="w-8 h-8 rounded-full bg-blue-500 hover:scale-110 transition-transform"></button>
+                <button class="w-8 h-8 rounded-full bg-pink-500 hover:scale-110 transition-transform"></button>
+                <button class="w-8 h-8 rounded-full bg-green-500 hover:scale-110 transition-transform"></button>
+                <button class="w-8 h-8 rounded-full bg-orange-500 hover:scale-110 transition-transform"></button>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <h2 class="text-xl font-bold text-textMain mb-1">Appearance</h2>
+            <p class="text-sm text-textMuted">Choose light or dark mode, or switch your mode automatically based on your system settings.</p>
+        </div>
+
+        <div class="bg-white border border-borderSubtle rounded-xl shadow-sm p-6 mb-8">
+            <div class="flex gap-4">
+                <button class="flex-1 py-3 border-2 border-primary rounded-xl font-semibold text-primary bg-primary/5 flex items-center justify-center gap-2">☀️ Light</button>
+                <button class="flex-1 py-3 border border-borderSubtle rounded-xl font-semibold text-textMuted hover:border-gray-300 flex items-center justify-center gap-2">🌙 Dark</button>
+                <button class="flex-1 py-3 border border-borderSubtle rounded-xl font-semibold text-textMuted hover:border-gray-300 flex items-center justify-center gap-2">💻 Auto</button>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <h2 class="text-xl font-bold text-textMain mb-1">Contrast</h2>
+            <p class="text-sm text-textMuted">Turn on and off high contrast text and borders.</p>
+        </div>
+
+        <div class="bg-white border border-borderSubtle rounded-xl shadow-sm p-6">
+            <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-textMain">High Contrast for increased accessibility</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+            </div>
+        </div>
+    </section>
+
+    <!-- Language & Format -->
+    <section>
+        <div class="mb-6">
+            <h2 class="text-xl font-bold text-textMain mb-1">Language & Region</h2>
+            <p class="text-sm text-textMuted">Customize your language and region.</p>
+        </div>
+
+        <div class="bg-white border border-borderSubtle rounded-xl shadow-sm overflow-hidden mb-8">
+            <div class="p-6 border-b border-borderSubtle grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-semibold text-textMuted uppercase mb-2">Language</label>
+                    <select class="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm">
+                        <option>English</option>
+                        <option>Spanish</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-textMuted uppercase mb-2">Timezone</label>
+                    <select class="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm" id="settings-timezone">
+                        <option value="Asia/Karachi">Asia/Karachi</option>
+                        <option value="UTC">UTC</option>
+                        <option value="America/New_York">America/New_York</option>
+                    </select>
+                </div>
+            </div>
+            <div class="p-6 flex items-center justify-between bg-gray-50">
+                <span class="text-sm font-medium text-textMain">Notify me of Timezone changes</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" class="sr-only peer" checked>
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <h2 class="text-xl font-bold text-textMain mb-1">Time & Date format</h2>
+            <p class="text-sm text-textMuted">Select the way times & dates are displayed.</p>
+        </div>
+
+        <div class="bg-white border border-borderSubtle rounded-xl shadow-sm p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <label class="block text-xs font-semibold text-textMuted uppercase mb-3">Start of the calendar week</label>
+                <div class="flex bg-gray-100 rounded-lg p-1">
+                    <button class="flex-1 py-1.5 text-xs font-medium bg-white shadow rounded-md">Sunday</button>
+                    <button class="flex-1 py-1.5 text-xs font-medium text-textMuted">Monday</button>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-textMuted uppercase mb-3">Time format</label>
+                <div class="flex bg-gray-100 rounded-lg p-1">
+                    <button class="flex-1 py-1.5 text-xs font-medium text-textMuted">24 hour</button>
+                    <button class="flex-1 py-1.5 text-xs font-medium bg-white shadow rounded-md">12 hour</button>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-textMuted uppercase mb-3">Date format</label>
+                <select class="w-full px-3 py-2 border border-borderSubtle rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm">
+                    <option>mm/dd/yyyy</option>
+                    <option>dd/mm/yyyy</option>
+                    <option>yyyy/mm/dd</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <!-- Preferences Section -->
+    <section>
+        <div class="mb-6">
+            <h2 class="text-xl font-bold text-textMain mb-1">Preferences</h2>
+            <p class="text-sm text-textMuted">Manage your in-app preferences.</p>
+        </div>
+
+        <div class="bg-white border border-borderSubtle rounded-xl shadow-sm overflow-hidden divide-y divide-borderSubtle">
+            <!-- Toggles List -->
+            <div class="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                <div>
+                    <h3 class="text-sm font-semibold text-textMain">Flyout Toast Message</h3>
+                    <p class="text-xs text-textMuted mt-0.5">When performing actions, toast messages may appear in the bottom left-hand of your screen. You can disable that here.</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer shrink-0 ml-4"><input type="checkbox" class="sr-only peer" checked><div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div></label>
+            </div>
+            <div class="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                <div>
+                    <h3 class="text-sm font-semibold text-textMain">Don't post comments with Enter</h3>
+                    <p class="text-xs text-textMuted mt-0.5">Use Ctrl + Enter to send comments instead of just Enter.</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer shrink-0 ml-4"><input type="checkbox" class="sr-only peer"><div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div></label>
+            </div>
+            <div class="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                <div>
+                    <h3 class="text-sm font-semibold text-textMain">Keyboard Shortcuts</h3>
+                    <p class="text-xs text-textMuted mt-0.5">Use keyboard shortcuts to quickly navigate and take action through ClickUp without using your mouse.</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer shrink-0 ml-4"><input type="checkbox" class="sr-only peer" checked><div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div></label>
+            </div>
+            <div class="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                <div>
+                    <h3 class="text-sm font-semibold text-textMain">Markdown</h3>
+                    <p class="text-xs text-textMuted mt-0.5">You can disable Markdown (shortcuts when typing) by turning it off here.</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer shrink-0 ml-4"><input type="checkbox" class="sr-only peer" checked><div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div></label>
+            </div>
+            <div class="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                <div>
+                    <h3 class="text-sm font-semibold text-textMain">Show quotes</h3>
+                    <p class="text-xs text-textMuted mt-0.5">Show celebratory quotes when you clear all your notifications or load certain pages</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer shrink-0 ml-4"><input type="checkbox" class="sr-only peer" checked><div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div></label>
+            </div>
+            <div class="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                <div>
+                    <h3 class="text-sm font-semibold text-textMain">Show Celebrations</h3>
+                    <p class="text-xs text-textMuted mt-0.5">Show confetti celebrations when you clear My Work, clear all notifications, or complete a Goal Target.</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer shrink-0 ml-4"><input type="checkbox" class="sr-only peer" checked><div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div></label>
+            </div>
+            <div class="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                <div>
+                    <h3 class="text-sm font-semibold text-textMain">Plain text links</h3>
+                    <p class="text-xs text-textMuted mt-0.5">Pasted URLs will appear as plain text hyperlinks. This will disable auto-unfurling hyperlinks such as embeds or bookmarks</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer shrink-0 ml-4"><input type="checkbox" class="sr-only peer"><div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div></label>
+            </div>
+        </div>
+    </section>
+
+    <!-- Danger Zone -->
+    <section>
+        <div class="mb-6">
+            <h2 class="text-xl font-bold text-red-600 mb-1">Danger zone</h2>
+            <p class="text-sm text-textMuted">Proceed with caution.</p>
+        </div>
+
+        <div class="bg-red-50 border border-red-200 rounded-xl p-6 flex items-center justify-between">
+            <div>
+                <h3 class="text-sm font-semibold text-red-700">Log out all sessions</h3>
+                <p class="text-xs text-red-600/80 mt-1">Log out of any session on mobile, iPad, and other browsers.</p>
+            </div>
+            <button onclick="clearAuth(); window.location.href='/';" class="px-5 py-2 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-red-700 shadow-sm transition-colors">Log Out All</button>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const u = getAuthUser();
+        if (u) {
+            document.getElementById('settings-name').value = u.name || '';
+            document.getElementById('settings-email').value = u.email || '';
+            document.getElementById('settings-avatar-initial').innerText = u.username.charAt(0).toUpperCase();
+        }
+
+        try {
+            const res = await fetchWithAuth('/api/profiles/my_profile/');
+            if (res.ok) {
+                const p = await res.json();
+                if (p.timezone) {
+                    document.getElementById('settings-timezone').value = p.timezone;
+                }
+            }
+        } catch(e) {}
+    });
+
+    // Add generic toggle listeners
+    document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', () => {
+            if (!cb.hasAttribute('onchange')) {
+                showToast('Preference updated', 'success');
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -49,3 +49,7 @@ class WorkspaceMembersView(TemplateView):
 class ProfileView(TemplateView):
     template_name = 'app/profile.html'
 
+
+class SettingsView(TemplateView):
+    template_name = 'app/settings.html'
+

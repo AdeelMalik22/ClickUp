@@ -6,7 +6,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     """Serializer for UserProfile with all fields"""
     class Meta:
         model = UserProfile
-        fields = ['id', 'user', 'bio', 'avatar_url', 'phone', 'department', 'position', 'skills', 'timezone', 'email_notifications_enabled', 'created_at', 'updated_at']
+        fields = ['id', 'user', 'bio', 'avatar', 'phone', 'department', 'position', 'skills', 'timezone', 'email_notifications_enabled', 'status_text', 'status_emoji', 'status_clear_at', 'preferences', 'created_at', 'updated_at']
         read_only_fields = ['id', 'user', 'created_at', 'updated_at']
 
 
@@ -19,7 +19,7 @@ class UserProfileDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ['id', 'user_id', 'username', 'email', 'name', 'bio', 'avatar_url', 'phone', 'department', 'position', 'skills', 'timezone', 'email_notifications_enabled', 'created_at', 'updated_at']
+        fields = ['id', 'user_id', 'username', 'email', 'name', 'bio', 'avatar', 'phone', 'department', 'position', 'skills', 'timezone', 'email_notifications_enabled', 'status_text', 'status_emoji', 'status_clear_at', 'preferences', 'created_at', 'updated_at']
         read_only_fields = ['id', 'user_id', 'username', 'email', 'name', 'created_at', 'updated_at']
 
 
