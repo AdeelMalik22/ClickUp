@@ -74,11 +74,82 @@
         <p id="profile-bio" class="text-sm text-textMuted leading-relaxed">No bio added yet.</p>
     </div>
 
+    <!-- Edit Profile Section -->
+    <div class="bg-white rounded-xl shadow-sm border border-borderSubtle p-6 mb-8">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-bold text-textMain">Edit Profile</h3>
+            <button id="toggle-edit-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                Edit Profile
+            </button>
+        </div>
+
+        <form id="edit-profile-form" class="space-y-6 hidden">
+            <!-- Basic Information Section -->
+            <div>
+                <h4 class="text-sm font-semibold text-textMain mb-4">Basic Information</h4>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-textMuted uppercase mb-2">Phone</label>
+                        <input type="tel" id="edit-phone" class="w-full px-3 py-2 border border-borderSubtle rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter phone number">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-textMuted uppercase mb-2">Timezone</label>
+                        <select id="edit-timezone" class="w-full px-3 py-2 border border-borderSubtle rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="UTC">UTC</option>
+                            <option value="EST">EST (Eastern Standard Time)</option>
+                            <option value="CST">CST (Central Standard Time)</option>
+                            <option value="MST">MST (Mountain Standard Time)</option>
+                            <option value="PST">PST (Pacific Standard Time)</option>
+                            <option value="GMT">GMT (Greenwich Mean Time)</option>
+                            <option value="CET">CET (Central European Time)</option>
+                            <option value="IST">IST (Indian Standard Time)</option>
+                            <option value="JST">JST (Japan Standard Time)</option>
+                            <option value="AEST">AEST (Australian Eastern Time)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Work Information Section -->
+            <div>
+                <h4 class="text-sm font-semibold text-textMain mb-4">Work Information</h4>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-textMuted uppercase mb-2">Position</label>
+                        <input type="text" id="edit-position" class="w-full px-3 py-2 border border-borderSubtle rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., Senior Developer">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-textMuted uppercase mb-2">Department</label>
+                        <input type="text" id="edit-department" class="w-full px-3 py-2 border border-borderSubtle rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., Engineering">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="block text-xs font-semibold text-textMuted uppercase mb-2">Skills</label>
+                    <input type="text" id="edit-skills" class="w-full px-3 py-2 border border-borderSubtle rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., Python, Django, React (comma-separated)">
+                </div>
+            </div>
+
+            <!-- Bio Section -->
+            <div>
+                <label class="block text-xs font-semibold text-textMuted uppercase mb-2">Bio</label>
+                <textarea id="edit-bio" rows="4" class="w-full px-3 py-2 border border-borderSubtle rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tell us about yourself..."></textarea>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-3 justify-end">
+                <button type="button" id="cancel-edit-btn" class="px-4 py-2 border border-borderSubtle text-textMuted rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                    Cancel
+                </button>
+                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+
     <!-- Account Settings -->
     <div class="bg-surfaceHover rounded-xl p-6 border border-borderSubtle">
-        <h3 class="text-lg font-bold text-textMain mb-2">Account Settings</h3>
-        <p class="text-sm text-textMuted mb-4">Profile editing functions are fully managed via the Django Admin
-            interface for this demo implementation.</p>
+        <h3 class="text-lg font-bold text-textMain mb-4">Account Settings</h3>
 
         <div class="space-y-4">
             <div class="flex justify-between items-center bg-white p-4 rounded-lg border border-borderSubtle">
@@ -96,7 +167,7 @@
                 </div>
                 <button
                     class="px-3 py-1.5 border border-borderSubtle rounded-md text-xs font-medium hover:bg-gray-50 text-textMuted cursor-not-allowed">Configure
-                    (Admin)</button>
+                    (Coming Soon)</button>
             </div>
 
             <div class="flex justify-between items-center bg-white p-4 rounded-lg border border-borderSubtle">
@@ -106,13 +177,15 @@
                 </div>
                 <button
                     class="px-3 py-1.5 border border-borderSubtle rounded-md text-xs font-medium hover:bg-gray-50 text-textMuted cursor-not-allowed">Reset
-                    (Admin)</button>
+                    (Coming Soon)</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+    let currentProfileData = null;
+
     document.addEventListener('DOMContentLoaded', async () => {
         const token = getAuthToken();
         const u = getAuthUser();
@@ -150,6 +223,7 @@
             const profileRes = await fetchWithAuth('/api/profiles/my_profile/');
             if (profileRes.ok) {
                 const profileData = await profileRes.json();
+                currentProfileData = profileData;
                 document.getElementById('profile-phone').innerText = profileData.phone || '-';
                 document.getElementById('profile-position').innerText = profileData.position || '-';
                 document.getElementById('profile-department').innerText = profileData.department || '-';
@@ -179,6 +253,99 @@
                 document.getElementById('profile-initial').innerText = u.username.charAt(0).toUpperCase();
             }
         }
+
+        // Setup edit form handlers
+        setupEditFormHandlers();
     });
+
+    function setupEditFormHandlers() {
+        const toggleEditBtn = document.getElementById('toggle-edit-btn');
+        const editForm = document.getElementById('edit-profile-form');
+        const cancelEditBtn = document.getElementById('cancel-edit-btn');
+        const editFormElement = document.querySelector('form#edit-profile-form');
+
+        // Toggle edit mode
+        toggleEditBtn.addEventListener('click', () => {
+            if (editForm.classList.contains('hidden')) {
+                // Show edit form and populate with current data
+                editForm.classList.remove('hidden');
+                toggleEditBtn.textContent = 'Cancel';
+                toggleEditBtn.className = 'px-4 py-2 bg-gray-400 text-white rounded-lg text-sm font-medium hover:bg-gray-500 transition-colors';
+
+                // Populate form fields
+                if (currentProfileData) {
+                    document.getElementById('edit-phone').value = currentProfileData.phone || '';
+                    document.getElementById('edit-position').value = currentProfileData.position || '';
+                    document.getElementById('edit-department').value = currentProfileData.department || '';
+                    document.getElementById('edit-skills').value = currentProfileData.skills || '';
+                    document.getElementById('edit-timezone').value = currentProfileData.timezone || 'UTC';
+                    document.getElementById('edit-bio').value = currentProfileData.bio || '';
+                }
+            } else {
+                // Hide edit form
+                editForm.classList.add('hidden');
+                toggleEditBtn.textContent = 'Edit Profile';
+                toggleEditBtn.className = 'px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors';
+            }
+        });
+
+        // Cancel edit
+        cancelEditBtn.addEventListener('click', () => {
+            editForm.classList.add('hidden');
+            toggleEditBtn.textContent = 'Edit Profile';
+            toggleEditBtn.className = 'px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors';
+        });
+
+        // Submit edit form
+        editFormElement.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const updateData = {
+                phone: document.getElementById('edit-phone').value || null,
+                position: document.getElementById('edit-position').value || null,
+                department: document.getElementById('edit-department').value || null,
+                skills: document.getElementById('edit-skills').value || null,
+                timezone: document.getElementById('edit-timezone').value,
+                bio: document.getElementById('edit-bio').value || null,
+            };
+
+            try {
+                const res = await fetchWithAuth(`/api/profiles/${currentProfileData.id}/`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                if (res.ok) {
+                    const updatedProfile = await res.json();
+                    currentProfileData = updatedProfile;
+
+                    // Update display
+                    document.getElementById('profile-phone').innerText = updatedProfile.phone || '-';
+                    document.getElementById('profile-position').innerText = updatedProfile.position || '-';
+                    document.getElementById('profile-department').innerText = updatedProfile.department || '-';
+                    document.getElementById('profile-skills').innerText = updatedProfile.skills || '-';
+                    document.getElementById('profile-timezone').innerText = updatedProfile.timezone || 'UTC';
+                    document.getElementById('profile-bio').innerText = updatedProfile.bio || 'No bio added yet.';
+
+                    // Hide form and show success message
+                    editForm.classList.add('hidden');
+                    toggleEditBtn.textContent = 'Edit Profile';
+                    toggleEditBtn.className = 'px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors';
+
+                    showToast('Profile updated successfully!');
+                } else {
+                    const errorData = await res.json();
+                    console.error('Failed to update profile:', errorData);
+                    showToast('Failed to update profile. Please try again.', 'error');
+                }
+            } catch (e) {
+                console.error('Error updating profile:', e);
+                showToast('Error updating profile. Please try again.', 'error');
+            }
+        });
+    }
 </script>
 {% endblock %}
