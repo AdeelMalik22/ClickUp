@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt import views as jwt_views
-from clickup.views_ui import LoginView, RegisterView, OnboardingView, DashboardView, ProjectView, WorkspaceListView, WorkspaceDetailView, WorkspaceMembersView, ProfileView
+from clickup.views_ui import LoginView, RegisterView, OnboardingView, DashboardView, ProjectView, WorkspaceListView, WorkspaceDetailView, WorkspaceMembersView, ProfileView, SettingsView
 
 urlpatterns = [
     # UI Routes
@@ -27,9 +27,10 @@ urlpatterns = [
     path('dashboard/', DashboardView.as_view(), name='dashboard'),
     path('project/<uuid:pk>/', ProjectView.as_view(), name='project_detail'),
     path('workspaces/', WorkspaceListView.as_view(), name='workspace_list'),
-    path('workspace/<uuid:pk>/', WorkspaceDetailView.as_view(), name='workspace_detail'),
-    path('workspace/<uuid:pk>/members/', WorkspaceMembersView.as_view(), name='workspace_members'),
+    path('workspaces/<uuid:pk>/', WorkspaceDetailView.as_view(), name='workspace_detail'),
+    path('workspaces/<uuid:pk>/members/', WorkspaceMembersView.as_view(), name='workspace_members'),
     path('profile/', ProfileView.as_view(), name='profile'),
+    path('settings/', SettingsView.as_view(), name='settings'),
 
     # API Routes
     path('admin/', admin.site.urls),
@@ -44,3 +45,9 @@ urlpatterns = [
     path("api/", include('project.urls')),
     path("api/", include('notifications.urls'))
 ]
+
+from django.conf import settings
+from django.conf.urls.static import static
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

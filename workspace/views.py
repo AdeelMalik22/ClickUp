@@ -7,9 +7,11 @@ from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
-from workspace.models import WorkSpace, WorkSpaceMember, WorkspaceInvitation
-from workspace.serializers import WorkspaceSerializer, AddMemberSerializer, WorkspaceInvitationSerializer
+from workspace.models import WorkSpace, WorkSpaceMember, WorkspaceInvitation, Department, Folder, SpaceItem
+from workspace.serializers import WorkspaceSerializer, AddMemberSerializer, WorkspaceInvitationSerializer, DepartmentSerializer, FolderSerializer, SpaceItemSerializer
 from workspace.permissions import IsWorkspaceOwner, IsWorkspaceManager
+
+# ...existing code...
 
 
 class WorkspaceView(viewsets.ModelViewSet):
@@ -195,3 +197,85 @@ class WorkspaceInvitationViewSet(viewsets.ModelViewSet):
             'detail': f'You have successfully joined "{invitation.workspace.name}" as {invitation.role}.',
             'workspace_id': str(invitation.workspace.id),
         }, status=status.HTTP_200_OK)
+
+
+class DepartmentViewSet(viewsets.ModelViewSet):
+    """ViewSet for Department management"""
+    serializer_class = DepartmentSerializer
+    queryset = Department.objects.all()
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['workspace']
+    search_fields = ['name', 'description']
+    ordering_fields = ['name', 'created_at']
+    ordering = ['name']
+
+    def get_queryset(self):
+        """Only show departments in workspaces user is member of"""
+        user = self.request.user
+        return Department.objects.filter(
+            workspace__memberships__user=user
+        ).distinct()
+
+    def perform_create(self, serializer):
+        """Auto-set created_by to current user"""
+        serializer.save(created_by=self.request.user)
+
+
+class FolderViewSet(viewsets.ModelViewSet):
+    """ViewSet for Folder management"""
+    serializer_class = FolderSerializer
+    queryset = Folder.objects.all()
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['workspace', 'parent_folder']
+    search_fields = ['name', 'description']
+    ordering_fields = ['name', 'created_at']
+    ordering = ['name']
+
+    def get_queryset(self):
+        """Only show folders in workspaces user is member of"""
+        user = self.request.user
+        return Folder.objects.filter(
+            workspace__memberships__user=user
+        ).distinct()
+
+    def perform_create(self, serializer):
+        """Auto-set created_by to current user"""
+        serializer.save(created_by=self.request.user)
+
+    @action(detail=False, methods=['get'])
+    def hierarchy(self, request):
+        """Get folder hierarchy for a workspace"""
+        workspace_id = request.query_params.get('workspace')
+        if not workspace_id:
+            return Response({'detail': 'workspace parameter required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Get root folders (parent_folder is None)
+        folders = self.get_queryset().filter(workspace_id=workspace_id, parent_folder__isnull=True)
+        serializer = self.get_serializer(folders, many=True)
+        return Response(serializer.data)
+
+
+class SpaceItemViewSet(viewsets.ModelViewSet):
+    """ViewSet for SpaceItem management"""
+    serializer_class = SpaceItemSerializer
+    queryset = SpaceItem.objects.all()
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['workspace', 'item_type']
+    search_fields = ['name', 'description']
+    ordering_fields = ['name', 'created_at']
+    ordering = ['name']
+
+    def get_queryset(self):
+        """Only show space items in workspaces user is member of"""
+        user = self.request.user
+        return SpaceItem.objects.filter(
+            workspace__memberships__user=user
+        ).distinct()
+
+    def perform_create(self, serializer):
+        """Auto-set created_by to current user"""
+        serializer.save(created_by=self.request.user)
+

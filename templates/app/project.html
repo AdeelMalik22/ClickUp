@@ -868,8 +868,10 @@
                 timeline.push(...comments.map(c => ({
                     type: 'comment',
                     id: `c_${c.id}`,
+                    db_id: c.id,
                     created_at: new Date(c.created_at),
                     user_name: c.user_name || 'User',
+                    user_id: c.user || c.user_id,
                     content: c.comment
                 })));
             }
@@ -893,18 +895,30 @@
             container.innerHTML = '';
 
             if (timeline.length > 0) {
+                let currentUserId = null;
+                try { currentUserId = JSON.parse(localStorage.getItem('user'))?.id; } catch(e){}
+
                 timeline.forEach(item => {
                     if (item.type === 'comment') {
+                        const isAuthor = currentUserId && (String(currentUserId) === String(item.user_id));
+                        const actionsHtml = isAuthor ? `
+                            <div class="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button onclick="editComment('${item.db_id}', '${taskId}')" class="text-[10px] uppercase font-bold tracking-wide text-textMuted hover:text-primary">Edit</button>
+                                <button onclick="deleteComment('${item.db_id}', '${taskId}')" class="text-[10px] uppercase font-bold tracking-wide text-textMuted hover:text-red-500">Delete</button>
+                            </div>
+                        ` : '';
+
                         container.innerHTML += `
-                            <div class="flex gap-3 bg-surface p-3 rounded-lg border border-borderSubtle">
+                            <div class="flex gap-3 bg-surface p-3 rounded-lg border border-borderSubtle relative group" id="comment-container-${item.db_id}">
                                 <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold shrink-0">${item.user_name.charAt(0).toUpperCase()}</div>
-                                <div>
+                                <div class="flex-1 min-w-0 pr-12">
                                     <div class="flex items-center gap-2 mb-1">
                                         <span class="text-sm font-bold text-textMain">${item.user_name}</span>
                                         <span class="text-xs text-textMuted">${item.created_at.toLocaleString()}</span>
                                     </div>
-                                    <p class="text-sm text-textMain whitespace-pre-wrap">${item.content}</p>
+                                    <p class="text-sm text-textMain whitespace-pre-wrap break-words" id="comment-text-${item.db_id}">${item.content}</p>
                                 </div>
+                                ${actionsHtml}
                             </div>
                         `;
                     } else {
@@ -960,6 +974,37 @@
             showToast('Network error', 'error');
         }
     }
+
+    window.deleteComment = async function(commentId, taskId) {
+        if(!confirm('Are you sure you want to delete this comment?')) return;
+        try {
+            const res = await fetchWithAuth(`/tasks/${taskId}/comments/${commentId}/`, { method: 'DELETE' });
+            if (res.ok || res.status === 204) {
+                showToast('Comment deleted');
+                loadActivityLog(taskId);
+            } else showToast('Failed to delete comment', 'error');
+        } catch (e) { showToast('Network error', 'error'); }
+    };
+
+    window.editComment = async function(commentId, taskId) {
+        const textEl = document.getElementById(`comment-text-${commentId}`);
+        if (!textEl) return;
+        const currentText = textEl.innerText;
+        const newText = prompt('Edit comment:', currentText);
+        if (newText !== null && newText.trim() !== '' && newText.trim() !== currentText) {
+            try {
+                const res = await fetchWithAuth(`/tasks/${taskId}/comments/${commentId}/`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ comment: newText.trim() })
+                });
+                if (res.ok) {
+                    showToast('Comment updated');
+                    loadActivityLog(taskId);
+                } else showToast('Failed to update comment', 'error');
+            } catch(e) { showToast('Network error', 'error'); }
+        }
+    };
 
     // --- Checklist Logic ---
     async function loadChecklists(taskId) {

@@ -101,7 +101,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
             serializer = UserProfileDetailSerializer(profile)
             return Response(serializer.data)
 
-    @action(detail=True, methods=['patch'], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=['patch', 'post'], permission_classes=[IsAuthenticated])
     def upload_avatar(self, request, pk=None):
         """Upload or update user avatar"""
         profile = self.get_object()
@@ -113,14 +113,14 @@ class UserProfileViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        if 'avatar_url' in request.data:
-            profile.avatar_url = request.data['avatar_url']
+        if 'avatar' in request.FILES:
+            profile.avatar = request.FILES['avatar']
             profile.save()
             serializer = UserProfileDetailSerializer(profile)
             return Response(serializer.data)
 
         return Response(
-            {"detail": "avatar_url field is required."},
+            {"detail": "avatar file is required."},
             status=status.HTTP_400_BAD_REQUEST
         )
 

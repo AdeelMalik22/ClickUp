@@ -8,6 +8,7 @@ class Project(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
     workspace = models.ForeignKey(WorkSpace, on_delete=models.CASCADE, related_name='projects')
+    folder = models.ForeignKey('workspace.Folder', on_delete=models.SET_NULL, null=True, blank=True, related_name='projects')
     description = models.TextField(blank=True, null=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_projects')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -21,6 +22,7 @@ class Project(models.Model):
         indexes = [
             models.Index(fields=['workspace', '-created_at']),
             models.Index(fields=['created_by']),
+            models.Index(fields=['folder']),
         ]
 
 
